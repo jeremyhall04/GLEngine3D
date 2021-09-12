@@ -7,9 +7,9 @@
 const int SCR_WIDTH = 960;
 const int SCR_HEIGHT = 540;
 
-static bool firstMouse = true;
-static float lastX = SCR_WIDTH / 2.0f;
-static float lastY = SCR_HEIGHT / 2.0f;
+//static bool firstMouse = true;
+//static float lastX = SCR_WIDTH / 2.0f;
+//static float lastY = SCR_HEIGHT / 2.0f;
 
 namespace delta { namespace graphics {
 	

@@ -10,38 +10,6 @@ namespace delta { namespace utils {
 	Camera::~Camera()
 	{}
 
-	void Camera::processCameraInput(GLFWwindow* window)
-	{
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			m_Position += m_CameraSpeed * m_Direction;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			m_Position -= m_CameraSpeed * m_Direction;
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			m_Position -= glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			m_Position += glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
-	}
-
-	void Camera::processMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch = true)
-	{
-		xOffset *= m_MouseSensitivity;
-		yOffset *= m_MouseSensitivity;
-
-		m_Yaw += xOffset;
-		m_Pitch += yOffset;
-
-		// make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (constrainPitch)
-		{
-			if (m_Pitch > 89.0f)
-				m_Pitch = 89.0f;
-			if (m_Pitch < -89.0f)
-				m_Pitch = -89.0f;
-		}
-
-		// update Direction, Right and Up Vectors using the updated Euler angles
-		update();
-	}
 
 
 
@@ -80,28 +48,96 @@ namespace delta { namespace utils {
 		update();
 	}
 
+	void PerspectiveCamera::processKeyboardInput(GLFWwindow* window)
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			m_Position += m_CameraSpeed * m_Direction;
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			m_Position -= m_CameraSpeed * m_Direction;
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			m_Position -= glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			m_Position += glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+			m_Position.y += m_CameraSpeed;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			m_Position.y -= m_CameraSpeed;
+	}
+
+	void PerspectiveCamera::processKeyboardInput(CameraMovement direction)
+	{
+		//float velocity = m_CameraSpeed * deltaTime;
+		if (direction == FORWARD)
+			m_Position += m_Direction * m_CameraSpeed;
+		if (direction == BACKWARD)
+			m_Position -= m_Direction * m_CameraSpeed;
+		if (direction == LEFT)
+			m_Position -= m_Right * m_CameraSpeed;
+			//m_Position -= glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
+		if (direction == RIGHT)
+			m_Position *= m_Right * m_CameraSpeed;
+			//m_Position += glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
+	}
+
+	void PerspectiveCamera::processMouseMovement(float xpos, float ypos, GLboolean constrainPitch = true)
+	{
+		if (m_FirstMouse)
+		{
+			m_MouseLastX = (float)SCR_WIDTH / 2.0f;
+			m_MouseLastY = (float)SCR_HEIGHT/ 2.0f;
+			m_FirstMouse = false;
+		}
+
+		float xOffset = xpos - m_MouseLastX;
+		float yOffset = m_MouseLastY - ypos;
+		m_MouseLastX = xpos;
+		m_MouseLastX = xpos;
+		xOffset *= m_MouseSensitivity;
+		yOffset *= m_MouseSensitivity;
+
+		m_Yaw += xOffset;
+		m_Pitch += yOffset;
+
+		// make sure that when pitch is out of bounds, screen doesn't get flipped
+		if (constrainPitch)
+		{
+			if (m_Pitch > 89.0f)
+				m_Pitch = 89.0f;
+			if (m_Pitch < -89.0f)
+				m_Pitch = -89.0f;
+		}
+
+		// update Direction, Right and Up Vectors using the updated Euler angles
+		update();
+	}
+
 	void PerspectiveCamera::update()
 	{
 		glm::vec3 dir;
 		float pitchR = glm::radians(m_Pitch);
 		float yawR = glm::radians(m_Yaw);
 
-		if (yawR < 0.0f)
-			yawR = TAU;
-		else
-			yawR = 0.0f;
+		//if (yawR < 0.0f)
+		//	yawR = TAU;
+		//else
+		//	yawR = 0.0f;
 
 		//yawR += fmod(yawR, TAU);
-
-		//dir.x = cos(yawR) * cos(pitchR);
-		//dir.y = sin(pitchR);
-		//dir.z = sin(yawR) * cos(pitchR);
 		
-		dir.x = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
+		//dir.x = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
+		//dir.y = std::roundf(sin(pitchR) * 100) / 100;
+		//dir.z = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
+
+		dir.x = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
 		dir.y = std::roundf(sin(pitchR) * 100) / 100;
-		dir.z = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
+		dir.z = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
 
 		m_Direction = glm::normalize(dir);
+		//m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
+		//m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
+		//m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
+		//m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
+
 		m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
 		m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 		m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);

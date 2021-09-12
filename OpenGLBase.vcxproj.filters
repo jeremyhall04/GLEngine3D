@@ -51,9 +51,6 @@
     <ClCompile Include="src\engine\graphics\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\3D\chunk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\graphics\3D\renderer3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,9 +117,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine\graphics\3D\renderable3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\graphics\3D\chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine\graphics\3D\blocks\block.h">

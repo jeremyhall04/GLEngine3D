@@ -46,9 +46,9 @@ namespace delta { namespace graphics {
 		}
 		glfwMakeContextCurrent(window);
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR);
 		glfwSetCursorPosCallback(window, mouse_callback);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR);
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		glfwSwapInterval(0);	// uncap fps
 
@@ -103,12 +103,12 @@ namespace delta { namespace graphics {
 
 	void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	{
-		if (firstMouse)
-		{
-			lastX = xpos;
-			lastY = ypos;
-			firstMouse = false;
-		}
+		//if (firstMouse)
+		//{
+		//	lastX = xpos;
+		//	lastY = ypos;
+		//	firstMouse = false;
+		//}
 	}
 
 } }

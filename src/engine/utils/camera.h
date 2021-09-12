@@ -35,17 +35,11 @@ namespace delta { namespace utils {
 
 		CameraType m_CameraType;
 
-		const float m_CameraSpeed = 2.5f;
-		const float m_MouseSensitivity = 0.1f;
-		float m_Pitch = 0.0f, m_Yaw = -90.0f;
-
 	public:
 		Camera(glm::vec3 position, glm::vec3 direction, CameraType cameraType);
 		~Camera();
 
 		//glm::mat4 getViewMatrix() { return glm::lookAt(m_Position, m_Position + m_Direction, m_Up); };
-		void processCameraInput(GLFWwindow* window);
-		void processMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch);
 		virtual void update() {}
 		glm::mat4 getViewMatrix() { return m_ViewProj.view; };
 		glm::mat4 getProjectionMatrix() { return m_ViewProj.projection; };
@@ -66,10 +60,19 @@ namespace delta { namespace utils {
 	{
 	private:
 		float m_FOV, m_Aspect, m_zNear, m_zFar;
+		bool m_FirstMouse = true;
+		float m_MouseLastX, m_MouseLastY;
+
+		const float m_CameraSpeed = 0.005f;
+		const float m_MouseSensitivity = 0.1f;
+		float m_Pitch = 0.0f, m_Yaw = -90.0f;
 	public:
 		PerspectiveCamera(glm::vec3 position, glm::vec3 direction, float fov);
 		PerspectiveCamera(float xPos, float yPos, float zPos, glm::vec3 direction, float fov);
 
+		void processKeyboardInput(GLFWwindow* window);
+		void processKeyboardInput(CameraMovement direction);
+		void processMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch);
 		void update() override;
 	};
 

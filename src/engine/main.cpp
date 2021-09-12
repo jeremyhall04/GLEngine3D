@@ -1,5 +1,8 @@
 #include "Header.h"
 
+#include "utils/timer.h"
+#include "utils/camera.h"
+
 #include "graphics/window/window.h"
 #include "graphics/shader.h"
 
@@ -22,9 +25,6 @@
 //#include "graphics/3D/layers/layer3d.h"
 //#include "graphics/3D/layers/chunk.h"
 
-#include "utils/timer.h"
-#include "utils/camera.h"
-
 #define RENDER_3D 1
 #define RENDER_9K_SPRITES 1
 
@@ -44,7 +44,7 @@ int main()
 {
 	Window window("3D Engine", SCR_WIDTH, SCR_HEIGHT);
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 20.0f);
+	/*glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 20.0f);
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
 	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -55,59 +55,20 @@ int main()
 	glm::mat4 perspective_ProjMatrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
 	glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 
-	/*std::cout << "\nviewMatrix = ";
-	for (int i = 0; i < 4; i++)
-	{
-		std::cout << "\n";
-		for (int j = 0; j < 4; j++)
-		{
-			std::cout << viewMatrix[j][i] << "\t";
-		}
-	}
-	std::cout << "\nprojectionMatrix = ";
-	for (int i = 0; i < 4; i++)
-	{
-		std::cout << "\n";
-		for (int j = 0; j < 4; j++)
-		{
-			std::cout << perspective_ProjMatrix[j][i] << "\t";
-		}
-	}*/
-
+	shader->setUniformMat4("pr_matrix", ortho_ProjMatrix);
+	shader->setUniformMat4("pr_matrix", perspective_ProjMatrix);
+	shader->setUniformMat4("vw_matrix", viewMatrix);*/
 
 	Shader* shader = new Shader("src/engine/graphics/shaders/basic.vert", "src/engine/graphics/shaders/basic.frag");
 	shader->enable();
 
+
 	OrthoCamera orthoCam(0, 0, 20.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(-16.0f, 16.0), glm::vec2(-9.0f, 9.0f));
-	PerspectiveCamera perspectiveCam(0, 0, 10.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));
+	PerspectiveCamera perspectiveCam(0, 0, 20.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));
 
-	//shader->setUniformMat4("pr_matrix", orthoCam.getProjectionMatrix());
-	shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());
-	//shader->setUniformMat4("vw_matrix", perspectiveCam.getViewMatrix());
-
-	/*std::cout << "\nperspective viewMatrix = ";
-	for (int i = 0; i < 4; i++)
-	{
-		std::cout << "\n";
-		for (int j = 0; j < 4; j++)
-		{
-			std::cout << perspectiveCam.getViewMatrix()[j][i] << "\t";
-		}
-	}
-	std::cout << "\nperspective projectionMatrix = ";
-	for (int i = 0; i < 4; i++)
-	{
-		std::cout << "\n";
-		for (int j = 0; j < 4; j++)
-		{
-			std::cout << perspectiveCam.getProjectionMatrix()[j][i] << "\t";
-		}
-	}*/
-
-	//shader->setUniformMat4("pr_matrix", ortho_ProjMatrix);
-	//shader->setUniformMat4("pr_matrix", perspective_ProjMatrix);
-	shader->setUniformMat4("vw_matrix", viewMatrix);
-
+	shader->setUniformMat4("pr_matrix", orthoCam.getProjectionMatrix());
+	//shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());
+	shader->setUniformMat4("vw_matrix", perspectiveCam.getViewMatrix());
 
 #if RENDER_3D
 
@@ -151,14 +112,19 @@ int main()
 		window.processInput();
 		window.getMousePos(x, y);
 
-		//orthoCam.processCameraInput(window.window);
-		//orthoCam.processMouseMovement(x, y, true);
-		//orthoCam.update();
-
 #if RENDER_3D
+
+		perspectiveCam.processKeyboardInput(window.window);
+		perspectiveCam.update();
+		//perspectiveCam.processMouseMovement(x, y, true);
+
 		//shader->enable();
+		shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());
+		shader->setUniformMat4("vw_matrix", perspectiveCam.getViewMatrix());
 		shader->setUniformMat4("ml_matrix", glm::rotate(glm::mat4(1.0f), glm::radians(time.elapsed() * 20.0f), glm::vec3(1.0f, 1.0f, 0.0f)));
 		shader->setUniform2f("light_pos", glm::vec2(glm::vec2((float)(x * orth_w / SCR_WIDTH - (orth_w / 2.0f)), (float)(orth_h / 2.0f - y * orth_h / SCR_HEIGHT))));
+		
+		// Renderer
 		renderer.begin();
 
 		renderer.submit(&block);

@@ -160,7 +160,6 @@
     <ClCompile Include="src\engine\graphics\2D\sprite\sprite.cpp" />
     <ClCompile Include="src\engine\graphics\2D\sprite\static_sprite.cpp" />
     <ClCompile Include="src\engine\graphics\3D\blocks\block.cpp" />
-    <ClCompile Include="src\engine\graphics\3D\chunk.cpp" />
     <ClCompile Include="src\engine\graphics\3D\renderer3d.cpp" />
     <ClCompile Include="src\engine\graphics\buffers\buffer.cpp" />
     <ClCompile Include="glad.c" />
@@ -180,7 +179,6 @@
     <ClInclude Include="src\engine\graphics\2D\sprite\sprite.h" />
     <ClInclude Include="src\engine\graphics\2D\sprite\static_sprite.h" />
     <ClInclude Include="src\engine\graphics\3D\blocks\block.h" />
-    <ClInclude Include="src\engine\graphics\3D\chunk.h" />
     <ClInclude Include="src\engine\graphics\3D\renderable3D.h" />
     <ClInclude Include="src\engine\graphics\3D\renderer3d.h" />
     <ClInclude Include="src\engine\graphics\buffers\buffer.h" />
