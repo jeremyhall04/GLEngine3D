@@ -24,6 +24,8 @@ namespace delta { namespace graphics {
 		glm::vec3 m_Size;
 		glm::vec4 m_Color;
 	public:
+		Renderable3D() 
+		{};
 		Renderable3D(glm::vec4 position, glm::vec3 size, glm::vec4 color)
 			: m_Position(position), m_Size(size), m_Color(color)
 		{};

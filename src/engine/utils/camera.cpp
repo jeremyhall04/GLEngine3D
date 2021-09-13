@@ -80,25 +80,31 @@ namespace delta { namespace utils {
 			//m_Position += glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
 	}
 
-	void PerspectiveCamera::processMouseMovement(float xpos, float ypos)
+	void PerspectiveCamera::processMouseMovement(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (m_FirstMouse)
 		{
 			m_MouseLastX = (float)SCR_WIDTH / 2.0f;
 			m_MouseLastY = (float)SCR_HEIGHT/ 2.0f;
+			glfwSetCursorPos(window, m_MouseLastX, m_MouseLastY);
 			m_FirstMouse = false;
 		}
 
 		float xOffset = xpos - m_MouseLastX;
 		float yOffset = m_MouseLastY - ypos;
-		m_MouseLastX = xpos;
-		m_MouseLastX = xpos;
-		xOffset *= m_MouseSensitivity;
-		yOffset *= m_MouseSensitivity;
 
-		m_Yaw += xOffset;
-		m_Pitch += yOffset;
-
+		if (xOffset > 1.0f || xOffset < -1.0f)
+		{
+			m_MouseLastX = xpos;
+			xOffset *= m_MouseSensitivity;
+			m_Yaw += xOffset;
+		}
+		if (yOffset > 1.0f || yOffset < -1.0f)
+		{
+			m_MouseLastY = ypos;
+			yOffset *= m_MouseSensitivity;
+			m_Pitch += yOffset;
+		}
 		// make sure that when pitch is out of bounds, screen doesn't get flipped
 
 		if (m_Pitch > 89.0f)
@@ -112,9 +118,13 @@ namespace delta { namespace utils {
 
 	void PerspectiveCamera::update()
 	{
-		//glm::vec3 dir;
-		//float pitchR = glm::radians(m_Pitch);
-		//float yawR = glm::radians(m_Yaw);
+		glm::vec3 dir;
+		float pitchR = glm::radians(m_Pitch);
+		float yawR = glm::radians(m_Yaw);
+
+		dir.x = cos(yawR) * cos(pitchR);
+		dir.y = sin(pitchR);
+		dir.z = sin(yawR) * cos(pitchR);
 
 		////if (yawR < 0.0f)
 		////	yawR = TAU;
@@ -131,7 +141,7 @@ namespace delta { namespace utils {
 		//dir.y = std::roundf(sin(pitchR) * 100) / 100;
 		//dir.z = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
 
-		//m_Direction = glm::normalize(dir);
+		m_Direction = glm::normalize(dir);
 		//m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
 		//m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 		//m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
@@ -141,8 +151,8 @@ namespace delta { namespace utils {
 		m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 		m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
 		m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
-		printf("\nCamera Position = <%f, %f, %f>", m_Position.x, m_Position.y, m_Position.z);
-		printf("\tDirection = <%f, %f, %f>", m_Direction.x, m_Direction.y, m_Direction.z);
+		//printf("\nCamera Position = <%f, %f, %f>", m_Position.x, m_Position.y, m_Position.z);
+		//printf("\tDirection = <%f, %f, %f>", m_Direction.x, m_Direction.y, m_Direction.z);
 	}
 
 }}

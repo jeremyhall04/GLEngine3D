@@ -11,17 +11,17 @@ namespace delta { namespace graphics {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-		if (window == NULL)
+		context = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+		if (context == NULL)
 		{
 			std::cout << "ERROR::GLFW::WINDOW CREATION FAILED\n" << std::endl;
 			glfwTerminate();
 			exit(1);
 		}
-		glfwMakeContextCurrent(window);
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+		glfwMakeContextCurrent(context);
+		glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 		//glfwSetCursorPosCallback(window, mouse_callback);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
@@ -37,19 +37,19 @@ namespace delta { namespace graphics {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
-		if (window == NULL)
+		context = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+		if (context == NULL)
 		{
 			std::cout << "ERROR::GLFW::WINDOW CREATION FAILED\n" << std::endl;
 			glfwTerminate();
 			exit(1);
 		}
 
-		glfwMakeContextCurrent(window);
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-		//glfwSetCursorPosCallback(window, mouse_callback);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwMakeContextCurrent(context);
+		glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
+		glfwSetCursorPosCallback(context, mouse_callback);
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR);
+		glfwSetInputMode(context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		glfwSwapInterval(1);	// uncap fps
 
@@ -63,12 +63,12 @@ namespace delta { namespace graphics {
 	Window::~Window()
 	{
 		glfwTerminate();
-		window = nullptr;
+		context = nullptr;
 	}
 
 	bool Window::isClose()
 	{
-		return glfwWindowShouldClose(window) == 1;
+		return glfwWindowShouldClose(context) == 1;
 	}
 
 	void Window::clear()
@@ -82,19 +82,19 @@ namespace delta { namespace graphics {
 		if (error != GL_NO_ERROR)
 			std::cout << "\nERROR::WINDOW::UPDATE::OpenGl error::" << error;
 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(context);
 		glfwPollEvents();
 	}
 
 	void Window::processInput()
 	{
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
+		if (glfwGetKey(context, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(context, true);
 	}
 
 	void Window::getMousePos(double& x, double& y)
 	{
-		glfwGetCursorPos(window, &x, &y);
+		glfwGetCursorPos(context, &x, &y);
 	}
 
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -104,6 +104,8 @@ namespace delta { namespace graphics {
 
 	void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	{
+		//printf("\n%f, %f", xpos, ypos);
+		
 		//if (firstMouse)
 		//{
 		//	lastX = xpos;

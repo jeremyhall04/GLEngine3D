@@ -65,14 +65,14 @@ namespace delta { namespace utils {
 
 		const float m_CameraSpeed = 0.1f;
 		const float m_MouseSensitivity = 0.1f;
-		float m_Pitch = 0.0f, m_Yaw = 0.0f;
+		float m_Pitch = 0.0f, m_Yaw = -90.0f;
 	public:
 		PerspectiveCamera(glm::vec3 position, glm::vec3 direction, float fov);
 		PerspectiveCamera(float xPos, float yPos, float zPos, glm::vec3 direction, float fov);
 
 		void processKeyboardInput(GLFWwindow* window, float deltaTime);
 		void processKeyboardInput(CameraMovement direction);
-		void processMouseMovement(float xOffset, float yOffset);
+		void processMouseMovement(GLFWwindow* window, double xpos, double ypos);
 		void update() override;
 	};
 

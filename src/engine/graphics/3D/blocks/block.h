@@ -34,6 +34,7 @@ namespace delta { namespace graphics {
 	class Block : public Renderable3D
 	{
 	public:
+		Block();
 		Block(float x, float y, float z, float cube_size, const glm::vec4 color);
 	};
 

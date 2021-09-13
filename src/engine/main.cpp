@@ -25,12 +25,18 @@
 //#include "graphics/3D/layers/layer3d.h"
 //#include "graphics/3D/layers/chunk.h"
 
+#include "state.h"
+
 #define RENDER_3D 1
 #define RENDER_9K_SPRITES 1
 
 using namespace delta;
 using namespace graphics;
 using namespace utils;
+
+
+//struct State state;
+
 
 float orth_w = 16.0f * 2.0f, orth_h = 9.0f * 2.0f;
 
@@ -76,6 +82,9 @@ int main()
 	Block block(0, 0, 0, 5, glm::vec4(1, 0, 1, 1));
 	Renderer3D renderer;
 
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 #else
 
 	TileLayer layer(shader), layer2(shader2);
@@ -101,7 +110,7 @@ int main()
 #endif
 
 	double x = 0.0, y = 0.0;
-	while (!glfwWindowShouldClose(window.window))
+	while (!glfwWindowShouldClose(window.context))
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -109,21 +118,22 @@ int main()
 
 		//window.clear();
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		window.processInput();
 		window.getMousePos(x, y);
 
 #if RENDER_3D
 
-		perspectiveCam.processKeyboardInput(window.window, deltaTime);
-		perspectiveCam.update();
-		//perspectiveCam.processMouseMovement(x, y);
+		perspectiveCam.processKeyboardInput(window.context, deltaTime);
+		perspectiveCam.processMouseMovement(window.context, x, y);
 
 		//shader->enable();
 		shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());
 		shader->setUniformMat4("vw_matrix", perspectiveCam.getViewMatrix());
 		shader->setUniformMat4("ml_matrix", glm::rotate(glm::mat4(1.0f), glm::radians(time.elapsed() * 20.0f), glm::vec3(1.0f, 1.0f, 0.0f)));
+		//shader->setUniform2f("light_pos", glm::vec2(glm::vec2((float)(x * orth_w / SCR_WIDTH - (orth_w / 2.0f)), (float)(orth_h / 2.0f - y * orth_h / SCR_HEIGHT))));
 		shader->setUniform2f("light_pos", glm::vec2(glm::vec2((float)(x * orth_w / SCR_WIDTH - (orth_w / 2.0f)), (float)(orth_h / 2.0f - y * orth_h / SCR_HEIGHT))));
+
 		
 		// Renderer
 		renderer.begin();

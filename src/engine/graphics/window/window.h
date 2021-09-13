@@ -31,9 +31,7 @@ namespace delta { namespace graphics {
 		void processInput();
 		void getMousePos(double& x, double& y);
 
-
-		GLFWwindow* window;
-		Camera* camera;
+		GLFWwindow* context;
 	};
 
 } }

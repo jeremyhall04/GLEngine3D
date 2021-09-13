@@ -171,6 +171,7 @@
     <ClCompile Include="src\engine\utils\camera.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\state.h" />
     <ClInclude Include="src\engine\utils\camera.h" />
     <ClInclude Include="src\engine\graphics\2D\layers\layer.h" />
     <ClInclude Include="src\engine\graphics\2D\layers\tilelayer.h" />
