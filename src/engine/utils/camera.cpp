@@ -48,8 +48,9 @@ namespace delta { namespace utils {
 		update();
 	}
 
-	void PerspectiveCamera::processKeyboardInput(GLFWwindow* window)
+	void PerspectiveCamera::processKeyboardInput(GLFWwindow* window, float deltaTime)
 	{
+		float velocity = m_CameraSpeed * deltaTime;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			m_Position += m_CameraSpeed * m_Direction;
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -79,7 +80,7 @@ namespace delta { namespace utils {
 			//m_Position += glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
 	}
 
-	void PerspectiveCamera::processMouseMovement(float xpos, float ypos, GLboolean constrainPitch = true)
+	void PerspectiveCamera::processMouseMovement(float xpos, float ypos)
 	{
 		if (m_FirstMouse)
 		{
@@ -99,13 +100,11 @@ namespace delta { namespace utils {
 		m_Pitch += yOffset;
 
 		// make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (constrainPitch)
-		{
-			if (m_Pitch > 89.0f)
-				m_Pitch = 89.0f;
-			if (m_Pitch < -89.0f)
-				m_Pitch = -89.0f;
-		}
+
+		if (m_Pitch > 89.0f)
+			m_Pitch = 89.0f;
+		if (m_Pitch < -89.0f)
+			m_Pitch = -89.0f;
 
 		// update Direction, Right and Up Vectors using the updated Euler angles
 		update();
@@ -113,26 +112,26 @@ namespace delta { namespace utils {
 
 	void PerspectiveCamera::update()
 	{
-		glm::vec3 dir;
-		float pitchR = glm::radians(m_Pitch);
-		float yawR = glm::radians(m_Yaw);
+		//glm::vec3 dir;
+		//float pitchR = glm::radians(m_Pitch);
+		//float yawR = glm::radians(m_Yaw);
 
-		//if (yawR < 0.0f)
-		//	yawR = TAU;
-		//else
-		//	yawR = 0.0f;
+		////if (yawR < 0.0f)
+		////	yawR = TAU;
+		////else
+		////	yawR = 0.0f;
 
-		//yawR += fmod(yawR, TAU);
-		
-		//dir.x = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
+		////yawR += fmod(yawR, TAU);
+		//
+		////dir.x = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
+		////dir.y = std::roundf(sin(pitchR) * 100) / 100;
+		////dir.z = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
+
+		//dir.x = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
 		//dir.y = std::roundf(sin(pitchR) * 100) / 100;
-		//dir.z = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
+		//dir.z = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
 
-		dir.x = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
-		dir.y = std::roundf(sin(pitchR) * 100) / 100;
-		dir.z = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
-
-		m_Direction = glm::normalize(dir);
+		//m_Direction = glm::normalize(dir);
 		//m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
 		//m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 		//m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
@@ -142,6 +141,8 @@ namespace delta { namespace utils {
 		m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 		m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
 		m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
+		printf("\nCamera Position = <%f, %f, %f>", m_Position.x, m_Position.y, m_Position.z);
+		printf("\tDirection = <%f, %f, %f>", m_Direction.x, m_Direction.y, m_Direction.z);
 	}
 
 }}

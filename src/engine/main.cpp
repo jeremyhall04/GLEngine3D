@@ -36,9 +36,10 @@ float orth_w = 16.0f * 2.0f, orth_h = 9.0f * 2.0f;
 
 Timer time;
 float timer = 0.0f;
+UINT frames = 0;
+
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-UINT frames = 0;
 
 int main()
 {
@@ -63,11 +64,11 @@ int main()
 	shader->enable();
 
 
-	OrthoCamera orthoCam(0, 0, 20.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(-16.0f, 16.0), glm::vec2(-9.0f, 9.0f));
-	PerspectiveCamera perspectiveCam(0, 0, 20.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));
+	//OrthoCamera orthoCam(0, 0, 20.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(-16.0f, 16.0), glm::vec2(-9.0f, 9.0f));
+	PerspectiveCamera perspectiveCam(0, 0, 20.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));
 
-	shader->setUniformMat4("pr_matrix", orthoCam.getProjectionMatrix());
-	//shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());
+	//shader->setUniformMat4("pr_matrix", orthoCam.getProjectionMatrix());
+	shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());
 	shader->setUniformMat4("vw_matrix", perspectiveCam.getViewMatrix());
 
 #if RENDER_3D
@@ -114,9 +115,9 @@ int main()
 
 #if RENDER_3D
 
-		perspectiveCam.processKeyboardInput(window.window);
+		perspectiveCam.processKeyboardInput(window.window, deltaTime);
 		perspectiveCam.update();
-		//perspectiveCam.processMouseMovement(x, y, true);
+		//perspectiveCam.processMouseMovement(x, y);
 
 		//shader->enable();
 		shader->setUniformMat4("pr_matrix", perspectiveCam.getProjectionMatrix());

@@ -44,13 +44,14 @@ namespace delta { namespace graphics {
 			glfwTerminate();
 			exit(1);
 		}
+
 		glfwMakeContextCurrent(window);
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-		glfwSetCursorPosCallback(window, mouse_callback);
+		//glfwSetCursorPosCallback(window, mouse_callback);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR);
 		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		glfwSwapInterval(0);	// uncap fps
+		glfwSwapInterval(1);	// uncap fps
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
