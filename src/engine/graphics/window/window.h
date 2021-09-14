@@ -2,21 +2,23 @@
 #define WINDOW_H
 
 #include "../../GLcommon.h"
-#include <iostream>
+#include "../../utils/camera.h"
 
 const int SCR_WIDTH = 960;
 const int SCR_HEIGHT = 540;
 
-//static bool firstMouse = true;
-//static float lastX = SCR_WIDTH / 2.0f;
-//static float lastY = SCR_HEIGHT / 2.0f;
+const float m_CameraSpeed = 0.1f;
+const float m_MouseSensitivity = 0.1f;
+static bool m_FirstMouse = true;
+static float m_MouseLastX, m_MouseLastY;
+
+extern delta::utils::PerspectiveCamera* g_CameraPtr;
 
 namespace delta { namespace graphics {
 	
-	class Camera;
-
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+	void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 	class Window
 	{

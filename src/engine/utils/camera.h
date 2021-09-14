@@ -3,7 +3,6 @@
 
 #include "../GLcommon.h"
 #include "../GLcommon_math.h"
-#include "../graphics/window/window.h"
 
 namespace delta { namespace utils {
 	
@@ -11,7 +10,9 @@ namespace delta { namespace utils {
 		FORWARD,
 		BACKWARD,
 		LEFT,
-		RIGHT
+		RIGHT,
+		UP,
+		DOWN
 	};
 
 	enum CameraType 
@@ -36,6 +37,7 @@ namespace delta { namespace utils {
 		CameraType m_CameraType;
 
 	public:
+		Camera();
 		Camera(glm::vec3 position, glm::vec3 direction, CameraType cameraType);
 		~Camera();
 
@@ -60,20 +62,18 @@ namespace delta { namespace utils {
 	{
 	private:
 		float m_FOV, m_Aspect, m_zNear, m_zFar;
-		bool m_FirstMouse = true;
-		float m_MouseLastX, m_MouseLastY;
-
-		const float m_CameraSpeed = 0.1f;
-		const float m_MouseSensitivity = 0.1f;
 		float m_Pitch = 0.0f, m_Yaw = -90.0f;
 	public:
+		PerspectiveCamera();
 		PerspectiveCamera(glm::vec3 position, glm::vec3 direction, float fov);
 		PerspectiveCamera(float xPos, float yPos, float zPos, glm::vec3 direction, float fov);
 
 		void processKeyboardInput(GLFWwindow* window, float deltaTime);
-		void processKeyboardInput(CameraMovement direction);
+		void processKeyboardInput(CameraMovement direction, float deltaTime);
 		void processMouseMovement(GLFWwindow* window, double xpos, double ypos);
+		void processMouseMovement(float xOffset, float yOffset);
 		void update() override;
+
 	};
 
 }}

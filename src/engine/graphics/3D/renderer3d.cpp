@@ -26,15 +26,17 @@ namespace delta { namespace graphics {
 		glEnableVertexAttribArray(SHADER_COLOR_INDEX);
 		glVertexAttribPointer(SHADER_VERTEX_INDEX, 4, GL_FLOAT, GL_FALSE, REN3D_VERTEX_SIZE, (const GLvoid*)0);
 		glVertexAttribPointer(SHADER_COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, REN3D_VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::color)));
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);	// unbind array buffer
 
-		GLushort* indices = new GLushort[REN3D_INDICES_SIZE];
-		for (int i = 0; i < REN3D_INDICES_SIZE; i += 36)
+		GLushort* indices = new GLushort[REN3D_MAX_INDICES];
+		for (int i = 0; i < REN3D_MAX_INDICES; i += 36)
 			for (int j = 0; j < 36; j++)
 				indices[i + j] = BLOCK_INDICES[j];
+		
+		m_IBO = new IndexBuffer(indices, REN3D_MAX_INDICES);
 
-		m_IBO = new IndexBuffer(indices, REN3D_INDICES_SIZE);
-
+		delete[] indices;
 		glBindVertexArray(0);
 	}
 
@@ -60,11 +62,10 @@ namespace delta { namespace graphics {
 		int a = color.w * 255;
 
 		GLuint c = a << 24 | b << 16 | g << 8 | r;
-
 		for (GLuint i = 0; i < 8; i++)
 		{
 			const float* vertex = &BLOCK_VERTICES[i * 3];
-			m_VertexBuffer->vertex = /**m_TransformationBack * */glm::vec4(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth, position.w);
+			m_VertexBuffer->vertex = glm::vec4(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth, position.w);
 			m_VertexBuffer->color = c;
 			m_VertexBuffer++;
 		}

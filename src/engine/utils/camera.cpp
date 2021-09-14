@@ -1,6 +1,10 @@
 #include "camera.h"
+#include "../graphics/window/window.h"
 
 namespace delta { namespace utils {
+
+	Camera::Camera()
+	{}
 
 	Camera::Camera(glm::vec3 position, glm::vec3 direction, CameraType cameraType)
 		: m_Position(position), m_Direction(direction), m_CameraType(cameraType)
@@ -35,6 +39,8 @@ namespace delta { namespace utils {
 
 
 
+	PerspectiveCamera::PerspectiveCamera()
+	{}
 
 	PerspectiveCamera::PerspectiveCamera(glm::vec3 position, glm::vec3 direction, float fov)
 		: Camera(position, direction, type_PerspectiveCamera), m_FOV(fov), m_Aspect((float)SCR_WIDTH / (float)SCR_HEIGHT), m_zNear(0.01f), m_zFar(100.0f)
@@ -65,7 +71,7 @@ namespace delta { namespace utils {
 			m_Position.y -= m_CameraSpeed;
 	}
 
-	void PerspectiveCamera::processKeyboardInput(CameraMovement direction)
+	void PerspectiveCamera::processKeyboardInput(CameraMovement direction, float deltaTime)
 	{
 		//float velocity = m_CameraSpeed * deltaTime;
 		if (direction == FORWARD)
@@ -74,18 +80,23 @@ namespace delta { namespace utils {
 			m_Position -= m_Direction * m_CameraSpeed;
 		if (direction == LEFT)
 			m_Position -= m_Right * m_CameraSpeed;
-			//m_Position -= glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
 		if (direction == RIGHT)
-			m_Position *= m_Right * m_CameraSpeed;
-			//m_Position += glm::normalize(glm::cross(m_Direction, m_Up)) * m_CameraSpeed;
+			m_Position += m_Right * m_CameraSpeed;
+		if (direction == UP)
+			m_Position.y += m_CameraSpeed;
+		if (direction == DOWN)
+			m_Position.y -= m_CameraSpeed;
+
+		//printf("\n%f, %f", m_Position.x, m_Position.y, m_Position.z);
+
 	}
 
-	void PerspectiveCamera::processMouseMovement(GLFWwindow* window, double xpos, double ypos)
+	/*void PerspectiveCamera::processMouseMovement(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (m_FirstMouse)
 		{
 			m_MouseLastX = (float)SCR_WIDTH / 2.0f;
-			m_MouseLastY = (float)SCR_HEIGHT/ 2.0f;
+			m_MouseLastY = (float)SCR_HEIGHT / 2.0f;
 			glfwSetCursorPos(window, m_MouseLastX, m_MouseLastY);
 			m_FirstMouse = false;
 		}
@@ -114,7 +125,24 @@ namespace delta { namespace utils {
 
 		// update Direction, Right and Up Vectors using the updated Euler angles
 		update();
+	}*/
+
+	void PerspectiveCamera::processMouseMovement(float xOffset, float yOffset)
+	{
+		m_Yaw += xOffset;
+		m_Pitch += yOffset;
+
+		// make sure that when pitch is out of bounds, screen doesn't get flipped
+
+		if (m_Pitch > 89.0f)
+			m_Pitch = 89.0f;
+		if (m_Pitch < -89.0f)
+			m_Pitch = -89.0f;
+
+		// update Direction, Right and Up Vectors using the updated Euler angles
+		//update();
 	}
+
 
 	void PerspectiveCamera::update()
 	{
@@ -126,32 +154,11 @@ namespace delta { namespace utils {
 		dir.y = sin(pitchR);
 		dir.z = sin(yawR) * cos(pitchR);
 
-		////if (yawR < 0.0f)
-		////	yawR = TAU;
-		////else
-		////	yawR = 0.0f;
-
-		////yawR += fmod(yawR, TAU);
-		//
-		////dir.x = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
-		////dir.y = std::roundf(sin(pitchR) * 100) / 100;
-		////dir.z = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
-
-		//dir.x = std::roundf((cos(yawR) * cos(pitchR)) * 100) / 100;
-		//dir.y = std::roundf(sin(pitchR) * 100) / 100;
-		//dir.z = std::roundf((sin(yawR) * cos(pitchR)) * 100) / 100;
-
 		m_Direction = glm::normalize(dir);
-		//m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
-		//m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
-		//m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
-		//m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
-
 		m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
 		m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 		m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
 		m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
-		//printf("\nCamera Position = <%f, %f, %f>", m_Position.x, m_Position.y, m_Position.z);
 		//printf("\tDirection = <%f, %f, %f>", m_Direction.x, m_Direction.y, m_Direction.z);
 	}
 

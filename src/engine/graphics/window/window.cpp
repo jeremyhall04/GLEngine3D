@@ -1,6 +1,8 @@
 #include "window.h"
-#include "../../GLcommon.h"
-#include "../../GLcommon_math.h"
+
+#include <iostream>
+
+extern delta::utils::PerspectiveCamera* g_CameraPtr = 0;
 
 namespace delta { namespace graphics {
 
@@ -48,7 +50,8 @@ namespace delta { namespace graphics {
 		glfwMakeContextCurrent(context);
 		glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 		glfwSetCursorPosCallback(context, mouse_callback);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR);
+		//glfwSetKeyCallback(context, keyboard_callback);
+		//glfwSetInputMode(context, GLFW_CURSOR, GLFW_CURSOR);
 		glfwSetInputMode(context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		glfwSwapInterval(1);	// uncap fps
@@ -58,6 +61,7 @@ namespace delta { namespace graphics {
 			std::cout << "ERROR::GLAD::GLAD INITIALIZATION FAILED\n" << std::endl;
 			exit(1);
 		}
+
 	}
 
 	Window::~Window()
@@ -82,6 +86,8 @@ namespace delta { namespace graphics {
 		if (error != GL_NO_ERROR)
 			std::cout << "\nERROR::WINDOW::UPDATE::OpenGl error::" << error;
 
+		g_CameraPtr->update();
+
 		glfwSwapBuffers(context);
 		glfwPollEvents();
 	}
@@ -90,6 +96,19 @@ namespace delta { namespace graphics {
 	{
 		if (glfwGetKey(context, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(context, true);
+
+		if (glfwGetKey(context, GLFW_KEY_W) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::FORWARD, 0.0f);
+		if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::BACKWARD, 0.0f);
+		if (glfwGetKey(context, GLFW_KEY_A) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::LEFT, 0.0f);
+		if (glfwGetKey(context, GLFW_KEY_D) == GLFW_PRESS)
+ 			g_CameraPtr->processKeyboardInput(utils::RIGHT, 0.0f);
+		if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::UP, 0.0f);
+		if (glfwGetKey(context, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::DOWN, 0.0f);
 	}
 
 	void Window::getMousePos(double& x, double& y)
@@ -104,14 +123,54 @@ namespace delta { namespace graphics {
 
 	void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	{
-		//printf("\n%f, %f", xpos, ypos);
-		
-		//if (firstMouse)
-		//{
-		//	lastX = xpos;
-		//	lastY = ypos;
-		//	firstMouse = false;
-		//}
+		if (m_FirstMouse)
+		{
+			m_MouseLastX = (float)SCR_WIDTH / 2.0f;
+			m_MouseLastY = (float)SCR_HEIGHT / 2.0f;
+			glfwSetCursorPos(window, m_MouseLastX, m_MouseLastY);
+			m_FirstMouse = false;
+		}
+
+		float xOffset = xpos - m_MouseLastX;
+		float yOffset = m_MouseLastY - ypos;
+
+		m_MouseLastX = xpos;
+		m_MouseLastY = ypos;
+		xOffset *= m_MouseSensitivity;
+		yOffset *= m_MouseSensitivity;
+
+		g_CameraPtr->processMouseMovement(xOffset, yOffset);
 	}
+
+	void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		//if ((key == GLFW_KEY_W) && (action == GLFW_PRESS))
+		//	g_CameraPtr->processKeyboardInput(utils::FORWARD, 0.0f);
+		//if ((key == GLFW_KEY_S) && (action == GLFW_PRESS))
+		//	g_CameraPtr->processKeyboardInput(utils::BACKWARD, 0.0f);
+		//if ((key == GLFW_KEY_A) && (action == GLFW_PRESS))
+		//	g_CameraPtr->processKeyboardInput(utils::LEFT, 0.0f);
+		//if ((key == GLFW_KEY_D) && (action == GLFW_PRESS))
+		//	g_CameraPtr->processKeyboardInput(utils::RIGHT, 0.0f);
+		//if ((key == GLFW_KEY_SPACE) && (action == GLFW_PRESS))
+		//	g_CameraPtr->processKeyboardInput(utils::UP, 0.0f);
+		//if ((key == GLFW_KEY_LEFT_SHIFT) && (action == GLFW_PRESS))
+		//	g_CameraPtr->processKeyboardInput(utils::DOWN, 0.0f);
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::FORWARD, 0.0f);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::BACKWARD, 0.0f);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::LEFT, 0.0f);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::RIGHT, 0.0f);
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::UP, 0.0f);
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			g_CameraPtr->processKeyboardInput(utils::DOWN, 0.0f);
+
+	}
+
 
 } }

@@ -6,11 +6,11 @@
 #include "renderable3D.h"
 #include "blocks/block.h"
 
-#define REN3D_MAX_BLOCKS	100
-#define REN3D_VERTEX_SIZE	sizeof(VertexData3D)
-#define REN3D_BLOCK_SIZE	REN3D_VERTEX_SIZE * 8
-#define REN3D_BUFFER_SIZE	REN3D_BLOCK_SIZE * REN3D_MAX_BLOCKS
-#define REN3D_INDICES_SIZE	REN3D_MAX_BLOCKS * 36
+#define REN3D_MAX_BLOCKS	150
+#define REN3D_VERTEX_SIZE	sizeof(VertexData3D)				// 20 bytes
+#define REN3D_BLOCK_SIZE	REN3D_VERTEX_SIZE * 8				// 160 bytes
+#define REN3D_BUFFER_SIZE	REN3D_BLOCK_SIZE * REN3D_MAX_BLOCKS	// 24000 bytes
+#define REN3D_MAX_INDICES	REN3D_MAX_BLOCKS * 36				// 5400 indices
 
 #define SHADER_VERTEX_INDEX 0
 #define SHADER_COLOR_INDEX 1
@@ -24,8 +24,7 @@ namespace delta { namespace graphics {
 		GLuint m_VBO;
 		IndexBuffer* m_IBO;
 		GLsizei m_IndexCount;
-		VertexData3D* m_VertexBuffer;
-
+		VertexData3D* m_VertexBuffer,* m_BufferStart;
 	public:
 		Renderer3D();
 		~Renderer3D();
@@ -33,6 +32,7 @@ namespace delta { namespace graphics {
 	private:
 		void init();
 	public:
+		VertexData3D* getVertexBuffer() { return m_VertexBuffer; };
 		void begin() override;
 		void submit(const Renderable3D* renderable);
 		void end() override;
