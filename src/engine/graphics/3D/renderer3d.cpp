@@ -30,10 +30,14 @@ namespace delta { namespace graphics {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);	// unbind array buffer
 
 		GLushort* indices = new GLushort[REN3D_MAX_INDICES];
+		GLuint offset = 0;
 		for (int i = 0; i < REN3D_MAX_INDICES; i += 36)
+		{
 			for (int j = 0; j < 36; j++)
-				indices[i + j] = BLOCK_INDICES[j];
-		
+				indices[i + j] = BLOCK_INDICES[j] + offset;
+			offset += 8;
+		}
+
 		m_IBO = new IndexBuffer(indices, REN3D_MAX_INDICES);
 
 		delete[] indices;
@@ -62,6 +66,7 @@ namespace delta { namespace graphics {
 		int a = color.w * 255;
 
 		GLuint c = a << 24 | b << 16 | g << 8 | r;
+		m_BufferStart = m_VertexBuffer;
 		for (GLuint i = 0; i < 8; i++)
 		{
 			const float* vertex = &BLOCK_VERTICES[i * 3];
@@ -69,6 +74,13 @@ namespace delta { namespace graphics {
 			m_VertexBuffer->color = c;
 			m_VertexBuffer++;
 		}
+
+		/*m_VertexBuffer = m_BufferStart;
+		for (int i = 0; i < 8; i++)
+		{
+			std::cout << "\nvertex[" << i << "] = " << m_VertexBuffer->vertex.x << ", " << m_VertexBuffer->vertex.y << ", " << m_VertexBuffer->vertex.z << ", " << m_VertexBuffer->vertex.w;
+			m_VertexBuffer++;
+		}*/
 
 		m_IndexCount += 36;
 	}
@@ -81,6 +93,20 @@ namespace delta { namespace graphics {
 
 	void Renderer3D::flush()
 	{
+		/*glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		VertexData3D* ptr = (VertexData3D*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+
+		std::cout << "\nvertices in buffer = ";
+
+		for (int i = 0; i < 16; i++)
+		{
+			std::cout << "\nvertex[" << i << "] = " << ptr->vertex.x << ", " << ptr->vertex.y << ", " << ptr->vertex.z << ", " << ptr->vertex.w << ", ";
+			ptr++;
+		}
+
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);*/ // unbind
+				
 		glBindVertexArray(m_VAO);
 		m_IBO->bind();
 

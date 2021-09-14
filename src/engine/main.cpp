@@ -63,7 +63,7 @@ int main()
 
 	shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 	shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
-	shader->setUniform3f("light_pos", glm::vec3(-1.0f, 0.0f, 1.0f));
+	shader->setUniform3f("light_pos", glm::vec3(0.0f, -1.0f, 2.5f));
 
 	Renderer3D renderer;
 
@@ -126,8 +126,8 @@ int main()
 		// Renderer
 		renderer.begin();
 
-		renderer.submit(block2);
 		renderer.submit(block1);
+		renderer.submit(block2);
 
 		renderer.end();
 		renderer.flush();
