@@ -2,12 +2,12 @@
 
 namespace delta { namespace graphics {
 
-	IndexBuffer::IndexBuffer(GLushort* data, GLuint count)
+	IndexBuffer::IndexBuffer(GLuint* data, GLuint count)
 		: m_Count(count)
 	{
 		glGenBuffers(1, &m_BufferID);
 		bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), data, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, GL_STATIC_DRAW);
 		unbind();
 	}
 

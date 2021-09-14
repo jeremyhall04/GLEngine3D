@@ -1,5 +1,7 @@
 #include "renderer3d.h"
 
+#include <iostream>
+
 namespace delta { namespace graphics {
 
 	Renderer3D::Renderer3D()
@@ -29,7 +31,7 @@ namespace delta { namespace graphics {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);	// unbind array buffer
 
-		GLushort* indices = new GLushort[REN3D_MAX_INDICES];
+		/*GLuint* indices = new GLuint[REN3D_MAX_INDICES];
 		GLuint offset = 0;
 		for (int i = 0; i < REN3D_MAX_INDICES; i += 36)
 		{
@@ -39,9 +41,28 @@ namespace delta { namespace graphics {
 		}
 
 		m_IBO = new IndexBuffer(indices, REN3D_MAX_INDICES);
+		delete[] indices;*/
 
-		delete[] indices;
+		m_IBO = new IndexBuffer(allocateBlockIndices(), REN3D_MAX_INDICES);
+
 		glBindVertexArray(0);
+	}
+
+	GLuint* Renderer3D::allocateBlockIndices()
+	{
+		GLuint* indices = new GLuint[REN3D_MAX_INDICES];
+		GLuint offset = 0;
+		for (int i = 0; i < REN3D_MAX_INDICES; i += 36)
+		{
+			for (int j = 0; j < 36; j++)
+				indices[i + j] = BLOCK_INDICES[j] + offset;
+			offset += 8;
+		}
+
+		if (indices != nullptr)
+			return indices;
+		else
+			std::cout << "\nERROR::BLOCK::INITIALIZATION::Indices is nullptr";
 	}
 
 	void Renderer3D::begin()
@@ -93,24 +114,10 @@ namespace delta { namespace graphics {
 
 	void Renderer3D::flush()
 	{
-		/*glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		VertexData3D* ptr = (VertexData3D*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
-
-		std::cout << "\nvertices in buffer = ";
-
-		for (int i = 0; i < 16; i++)
-		{
-			std::cout << "\nvertex[" << i << "] = " << ptr->vertex.x << ", " << ptr->vertex.y << ", " << ptr->vertex.z << ", " << ptr->vertex.w << ", ";
-			ptr++;
-		}
-
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);*/ // unbind
-				
 		glBindVertexArray(m_VAO);
 		m_IBO->bind();
 
-		glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_SHORT, NULL);
+		glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, NULL);
 
 		m_IBO->unbind();
 		glBindVertexArray(0);

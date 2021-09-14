@@ -7,11 +7,6 @@
 const int SCR_WIDTH = 960;
 const int SCR_HEIGHT = 540;
 
-const float m_CameraSpeed = 0.1f;
-const float m_MouseSensitivity = 0.1f;
-static bool m_FirstMouse = true;
-static float m_MouseLastX, m_MouseLastY;
-
 extern delta::utils::PerspectiveCamera* g_CameraPtr;
 
 namespace delta { namespace graphics {

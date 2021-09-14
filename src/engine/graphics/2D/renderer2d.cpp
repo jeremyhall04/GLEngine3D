@@ -43,7 +43,7 @@ namespace delta { namespace graphics {
 			offset += 4;
 		}
 
-		m_IBO = new IndexBuffer(indices, RENDERER_INDICES_SIZE);
+		m_IBO = new IndexBuffer((GLuint*)indices, RENDERER_INDICES_SIZE);
 
 		glBindVertexArray(0);
 	}

@@ -10,6 +10,5 @@ namespace delta { namespace graphics {
 		: Renderable3D(glm::vec4(x, y, z, 1.0f), glm::vec3(cube_size, cube_size, cube_size), color)
 	{	
 	}
-
 }}
 

@@ -25,7 +25,7 @@ namespace delta { namespace graphics {
 		m_VertexArray->addBuffer(new Buffer(colors, 4 * 4, 4), 1);
 
 		GLushort indices[] = { 0, 1, 2, 2, 3, 0 };
-		m_IndexBuffer = new IndexBuffer(indices, 6);
+		m_IndexBuffer = new IndexBuffer((GLuint*)indices, 6);
 	}
 
 	StaticSprite::~StaticSprite()

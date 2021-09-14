@@ -67,8 +67,22 @@ int main()
 
 	Renderer3D renderer;
 
-	Block* block1 = new Block(0, 0, 0, 5, glm::vec4(1, 0, 1, 1));
-	Block* block2 = new Block(-5, 0, 0, 5, glm::vec4(0, 1, 1, 1));
+	const int w_blocks = 1;
+	const int l_blocks = 1;
+	const int n_blocks = w_blocks * l_blocks;
+	float blockSize = 1.0f;
+	float blockX = 0.0f, blockY = 0.0f, blockZ = 0.0f;
+
+	Block* chunk_w[w_blocks][l_blocks];
+	for (int i = 0; i < w_blocks; i++)
+	{
+		blockX = i * blockSize;
+		for (int j = 0; j < l_blocks; j++)
+		{
+			blockZ = j * blockSize;
+			chunk_w[i][j] = new Block(blockX, blockY, -blockZ, blockSize, glm::vec4(0, 1, 1, 1));
+		}
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -126,8 +140,9 @@ int main()
 		// Renderer
 		renderer.begin();
 
-		renderer.submit(block1);
-		renderer.submit(block2);
+		for (int i = 0; i < w_blocks; i++)
+			for (int j = 0; j < l_blocks; j++)
+				renderer.submit(chunk_w[i][j]);
 
 		renderer.end();
 		renderer.flush();
@@ -138,15 +153,7 @@ int main()
 		shader->enable();
 		shader->setUniform2f("light_pos", glm::vec2(glm::vec2((float)(x * orth_w / SCR_WIDTH - (orth_w / 2.0f)), (float)(orth_h / 2.0f - y * orth_h / SCR_HEIGHT))));
 		
-		//layer.render();
-
-		renderer2d.begin();
-
-		renderer2d.submit(button);
-		renderer2d.submit(button2);
-
-		renderer2d.end();
-		renderer2d.flush();
+		layer.render();
 
 #endif
 

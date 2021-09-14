@@ -4,7 +4,6 @@
 #include "../GLcommon.h"
 #include "../GLcommon_math.h"
 #include <stdlib.h>
-#include <iostream>
 
 namespace delta { namespace graphics {
 

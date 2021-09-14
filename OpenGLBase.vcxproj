@@ -161,6 +161,7 @@
     <ClCompile Include="src\engine\graphics\2D\sprite\static_sprite.cpp" />
     <ClCompile Include="src\engine\graphics\3D\blocks\block.cpp" />
     <ClCompile Include="src\engine\graphics\3D\renderer3d.cpp" />
+    <ClCompile Include="src\engine\graphics\3D\texture\texture.cpp" />
     <ClCompile Include="src\engine\graphics\buffers\buffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="src\engine\graphics\buffers\indexbuffer.cpp" />
@@ -171,6 +172,7 @@
     <ClCompile Include="src\engine\utils\camera.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\graphics\3D\texture\texture.h" />
     <ClInclude Include="src\engine\state.h" />
     <ClInclude Include="src\engine\utils\camera.h" />
     <ClInclude Include="src\engine\graphics\2D\layers\layer.h" />

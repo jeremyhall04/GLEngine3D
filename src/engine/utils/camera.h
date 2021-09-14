@@ -4,6 +4,11 @@
 #include "../GLcommon.h"
 #include "../GLcommon_math.h"
 
+const float m_CameraSpeed = 0.08f;
+const float m_MouseSensitivity = 0.1f;
+static bool m_FirstMouse = true;
+static float m_MouseLastX, m_MouseLastY;
+
 namespace delta { namespace utils {
 	
 	enum CameraMovement {
@@ -24,6 +29,9 @@ namespace delta { namespace utils {
 		glm::mat4 view, projection;
 	};
 
+	//-----------------------------------------------------------------------------------------------------
+	//-------------------------------------------- CAMERA -------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
 	class Camera
 	{
 	protected:
@@ -47,6 +55,9 @@ namespace delta { namespace utils {
 		glm::mat4 getProjectionMatrix() { return m_ViewProj.projection; };
 	};
 
+	//-----------------------------------------------------------------------------------------------------
+	//------------------------------------------- Orthographic --------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
 	class OrthoCamera : public Camera
 	{
 	private:
@@ -58,6 +69,9 @@ namespace delta { namespace utils {
 		void update() override;
 	};
 
+	//-----------------------------------------------------------------------------------------------------
+	//------------------------------------------- Perspective ---------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
 	class PerspectiveCamera : public Camera
 	{
 	private:

@@ -12,7 +12,7 @@ namespace delta { namespace graphics {
 		GLuint m_Count;
 
 	public:
-		IndexBuffer(GLushort* data, GLuint count);
+		IndexBuffer(GLuint* data, GLuint count);
 		~IndexBuffer();
 
 		void bind() const;

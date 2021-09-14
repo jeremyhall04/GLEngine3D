@@ -22,7 +22,24 @@ namespace delta { namespace graphics {
 		1, 1, 1,
 		0, 1, 1
 	};
-	const GLuint BLOCK_INDICES[36] = {
+
+	const GLushort BLOCK_NORMALS[18] = {
+		 0,  0, -1,
+		 0,  0,  1,
+		 1,  0,  1,
+		-1,  0,  0,
+		 0,  1,  0,
+		 0, -1,  0
+	};
+
+	const GLushort BLOCK_TEXTURE_COORDS[8] = {
+		0, 0,
+		1, 0,
+		1, 1,
+		0, 1
+	};
+
+	const GLushort BLOCK_INDICES[36] = {
 		1, 0, 3, 1, 3, 2, // north (-z)
 		4, 5, 6, 4, 6, 7, // south (+z)
 		5, 1, 2, 5, 2, 6, // east (+x)
@@ -30,6 +47,8 @@ namespace delta { namespace graphics {
 		2, 3, 7, 2, 7, 6, // top (+y)
 		5, 4, 0, 5, 0, 1, // bottom (-y)
 	};
+
+	const GLushort BLOCK_TEXTURE_INDICES[6] = { 1, 0, 3, 1, 3, 2 };
 
 	class Block : public Renderable3D
 	{
