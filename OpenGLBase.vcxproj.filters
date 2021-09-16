@@ -18,135 +18,116 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\window\window.cpp">
+    <ClCompile Include="res\stb_image\stb_image.h.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\main.cpp">
+    <ClCompile Include="src\graphics\buffers\buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\buffers\buffer.cpp">
+    <ClCompile Include="src\graphics\buffers\indexbuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\buffers\vertexarray.cpp">
+    <ClCompile Include="src\graphics\buffers\vertexarray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\buffers\indexbuffer.cpp">
+    <ClCompile Include="src\graphics\texture\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\2D\renderer2d.cpp">
+    <ClCompile Include="src\graphics\window\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\2D\layers\layer.cpp">
+    <ClCompile Include="src\graphics\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\2D\layers\tilelayer.cpp">
+    <ClCompile Include="src\utils\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\2D\sprite\sprite.cpp">
+    <ClCompile Include="src\utils\direction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\2D\sprite\static_sprite.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\shader.cpp">
+    <ClCompile Include="src\graphics\renderer3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\graphics\3D\renderer3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\graphics\3D\blocks\block.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\utils\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\graphics\3D\texture\texture.cpp">
+    <ClCompile Include="src\blocks\block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\engine\GLcommon.h">
+    <ClInclude Include="res\stb_image\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\GLcommon_math.h">
+    <ClInclude Include="src\graphics\buffers\buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\window\window.h">
+    <ClInclude Include="src\graphics\buffers\indexbuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\Header.h">
+    <ClInclude Include="src\graphics\buffers\vertexarray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\utils\timer.h">
+    <ClInclude Include="src\graphics\texture\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\buffers\buffer.h">
+    <ClInclude Include="src\graphics\window\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\buffers\vertexarray.h">
+    <ClInclude Include="src\graphics\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\buffers\indexbuffer.h">
+    <ClInclude Include="src\graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\renderer.h">
+    <ClInclude Include="src\math\math_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\2D\renderable2d.h">
+    <ClInclude Include="src\utils\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\2D\renderer2d.h">
+    <ClInclude Include="src\utils\direction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\math\math_funcs.h">
+    <ClInclude Include="src\utils\timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\2D\layers\layer.h">
+    <ClInclude Include="src\GLcommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\2D\layers\tilelayer.h">
+    <ClInclude Include="src\GLcommon_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\2D\sprite\sprite.h">
+    <ClInclude Include="src\Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\2D\sprite\static_sprite.h">
+    <ClInclude Include="src\state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\shader.h">
+    <ClInclude Include="src\graphics\renderable3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\3D\renderer3d.h">
+    <ClInclude Include="src\graphics\renderer3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\graphics\3D\renderable3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\graphics\3D\blocks\block.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\utils\camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\state.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\graphics\3D\texture\texture.h">
+    <ClInclude Include="src\blocks\block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\engine\graphics\2D\shaders\basic.frag" />
-    <None Include="src\engine\graphics\2D\shaders\basic.vert" />
-    <None Include="src\engine\graphics\2D\shaders\shader.fs" />
-    <None Include="src\engine\graphics\2D\shaders\shader.vs" />
-    <None Include="src\engine\graphics\3D\shaders\basic.frag" />
-    <None Include="src\engine\graphics\3D\shaders\basic.vert" />
-    <None Include="src\engine\graphics\3D\shaders\shader.fs" />
-    <None Include="src\engine\graphics\3D\shaders\shader.vs" />
-    <None Include="src\engine\graphics\shaders\basic.frag" />
-    <None Include="src\engine\graphics\shaders\basic.vert" />
-    <None Include="src\engine\graphics\shaders\shader.fs" />
-    <None Include="src\engine\graphics\shaders\shader.vs" />
+    <None Include="res\shaders\basic.frag" />
+    <None Include="res\shaders\basic.vert" />
+    <None Include="res\shaders\shader.fs" />
+    <None Include="res\shaders\shader.vs" />
+    <None Include="res\shaders\texture.frag" />
+    <None Include="res\shaders\texture.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\images\blocks.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\images\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
