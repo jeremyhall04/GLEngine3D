@@ -2,7 +2,8 @@
 #define RENDERER_3D_H
 
 #include <cstddef>
-#include "renderer.h"
+#include "../GLcommon.h"
+#include "../GLcommon_math.h"
 #include "renderable3D.h"
 #include "../blocks/block.h"
 #include "texture/texture.h"
@@ -17,7 +18,7 @@
 #define SHADER_UV_INDEX_3D		1
 #define SHADER_COLOR_INDEX_3D	2
 
-class Renderer3D : public Renderer
+class Renderer3D
 {
 private:
 	GLuint m_VAO;
@@ -39,10 +40,10 @@ private:
 
 public:
 	VertexData3D* getVertexBuffer() { return m_VertexBuffer; };
-	void begin() override;
+	void begin();
 	void submit(const Renderable3D* renderable);
-	void end() override;
-	void flush() override;
+	void end();
+	void flush();
 };
 
 

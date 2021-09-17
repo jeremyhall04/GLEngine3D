@@ -45,8 +45,9 @@ int main()
 	Shader* shader = new Shader("res/shaders/texture.vert", "res/shaders/texture.frag");
 	shader->enable();
 
-	Texture texture("res/images/grass.png");
-	texture.bind();
+	Texture tex1("res/images/grass.png");
+	Texture tex2("res/images/stone.png");
+	tex1.bind();
 
 	Renderer3D renderer;
 
@@ -95,7 +96,7 @@ int main()
 		window.clear();
 		window.processInput();
 
-		texture.bind();
+		tex1.bind();
 		//shader->setUniform1i("textureSampler", texture.getID()-1);
 
 		shader->enable();

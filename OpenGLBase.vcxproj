@@ -181,7 +181,6 @@
     <ClInclude Include="src\GLcommon_math.h" />
     <ClInclude Include="src\graphics\buffers\indexbuffer.h" />
     <ClInclude Include="src\graphics\buffers\vertexarray.h" />
-    <ClInclude Include="src\graphics\renderer.h" />
     <ClInclude Include="src\graphics\shader.h" />
     <ClInclude Include="src\graphics\window\window.h" />
     <ClInclude Include="src\Header.h" />

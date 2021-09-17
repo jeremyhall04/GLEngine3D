@@ -74,9 +74,6 @@
     <ClInclude Include="src\graphics\window\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -104,13 +101,13 @@
     <ClInclude Include="src\state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\renderable3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\renderer3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\blocks\block.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\renderable3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
