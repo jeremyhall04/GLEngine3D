@@ -4,12 +4,6 @@
 #include "../GLcommon.h"
 #include "../graphics/renderable3D.h"
 
-enum class BlockType {
-	_Default	= -1,
-	Grass		= 0,
-	Sky			= 1
-};
-
 class Block : public Renderable3D
 {
 private:
@@ -19,6 +13,16 @@ public:
 	Block(float x, float y, float z, float cube_size, const glm::vec4 color);
 	Block(float x, float y, float z, float cube_size, BlockType blockType);
 };
+
+struct Blocks {
+	Block** blocks;
+	GLuint blockCount = 0;
+};
+
+extern Blocks WorldBlocks;
+
+void add_to_blocks(const Block& block);
+void remove_from_blocks(GLuint blockIndex);
 
 #endif // !BLOCK_H
 

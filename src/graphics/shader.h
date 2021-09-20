@@ -30,7 +30,9 @@ public:
     // utility uniform functions
     void setUniformBool(const char* name, const bool value);
     void setUniform1i(const char* name, const int value);
+    void setUniform1iv(const char* name, int count, const int* value);
     void setUniform1f(const char* name, const float value);
+    void setUniform1fv(const char* name, int count, const float* value);
     void setUniform2f(const char* name, const glm::vec2& vector);
     void setUniform3f(const char* name, const glm::vec3& vector);
     void setUniform4f(const char* name, const glm::vec4& vector);

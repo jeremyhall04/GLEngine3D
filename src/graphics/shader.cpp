@@ -186,9 +186,19 @@ void Shader::setUniform1i(const char* name, const int value)
 	glUniform1i(getUniformLocation(name), value);
 }
 
+void Shader::setUniform1iv(const char* name, int count, const int* value)
+{
+	glUniform1iv(getUniformLocation(name), count, value);
+}
+
 void Shader::setUniform1f(const char* name, const float value)
 {
 	glUniform1f(getUniformLocation(name), value);
+}
+
+void Shader::setUniform1fv(const char* name, int count, const float* value)
+{
+	glUniform1fv(getUniformLocation(name), count, value);
 }
 
 void Shader::setUniform2f(const char* name, const glm::vec2& vector)

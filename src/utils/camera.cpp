@@ -43,12 +43,16 @@ PerspectiveCamera::PerspectiveCamera()
 PerspectiveCamera::PerspectiveCamera(glm::vec3 position, glm::vec3 direction, float fov)
 	: Camera(position, direction, type_PerspectiveCamera), m_FOV(fov), m_Aspect((float)SCR_WIDTH / (float)SCR_HEIGHT), m_zNear(0.01f), m_zFar(100.0f)
 {
+	m_Pitch = 0.0f;
+	m_Yaw = (atan2(direction.z, direction.x) * 180) / PI;
 	update();
 }
 
 PerspectiveCamera::PerspectiveCamera(float xPos, float yPos, float zPos, glm::vec3 direction, float fov)
 	: Camera(glm::vec3(xPos, yPos, zPos), direction, type_PerspectiveCamera), m_FOV(fov), m_Aspect((float)SCR_WIDTH / (float)SCR_HEIGHT), m_zNear(0.01f), m_zFar(100.0f)
 {
+	m_Pitch = 0.0f;
+	m_Yaw = (atan2(direction.z, direction.x) * 180) / PI;
 	update();
 }
 
@@ -147,15 +151,16 @@ void PerspectiveCamera::update()
 	glm::vec3 dir;
 	float pitchR = glm::radians(m_Pitch);
 	float yawR = glm::radians(m_Yaw);
-
+	
 	dir.x = cos(yawR) * cos(pitchR);
 	dir.y = sin(pitchR);
 	dir.z = sin(yawR) * cos(pitchR);
+	//printf("\ndir = <%f, %f, %f>", dir.x, dir.y, dir.z);
 
 	m_Direction = glm::normalize(dir);
 	m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
 	m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 	m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
 	m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
-	//printf("\tDirection = <%f, %f, %f>", m_Direction.x, m_Direction.y, m_Direction.z);
+	//printf("\nPosition = <%f, %f, %f>", m_Position.x, m_Position.y, m_Position.z);
 }

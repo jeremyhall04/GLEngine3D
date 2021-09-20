@@ -12,19 +12,21 @@
 #include "../utils/direction.h"
 
 const GLfloat BLOCK_VERTICES[3 * 6 * 6] = {
-	0, 0, 1,	// north face (+z)
-	1, 0, 1,
-	1, 1, 1,
-	0, 0, 1,
-	1, 1, 1,
-	0, 1, 1,
-
-	1, 0, 0,	// south face (-z)
+	// south face (-z)
+	1, 0, 0,
 	0, 0, 0,
 	0, 1, 0,
 	1, 0, 0,
 	0, 1, 0,
 	1, 1, 0,
+
+	// north face (+z)
+	0, 0, 1,
+	1, 0, 1,
+	1, 1, 1,
+	0, 0, 1,
+	1, 1, 1,
+	0, 1, 1,
 
 	1, 0, 1,	// east face (+x)
 	1, 0, 0,
@@ -56,6 +58,7 @@ const GLfloat BLOCK_VERTICES[3 * 6 * 6] = {
 };
 
 const GLfloat BLOCK_UV[3 * 36] = {
+	// south face (-z)
 	1, 0,
 	0, 0,
 	0, 1,
@@ -63,6 +66,7 @@ const GLfloat BLOCK_UV[3 * 36] = {
 	0, 1,
 	1, 1,
 
+	// north face (+z)
 	1, 0,
 	0, 0,
 	0, 1,
@@ -70,28 +74,28 @@ const GLfloat BLOCK_UV[3 * 36] = {
 	0, 1,
 	1, 1,
 
-	1, 0,
+	1, 0,	// east face (+x)
 	0, 0,
 	0, 1,
 	1, 0,
 	0, 1,
 	1, 1,
 
-	1, 0,
+	1, 0,	// west face (-x)
 	0, 0,
 	0, 1,
 	1, 0,
 	0, 1,
 	1, 1,
 
-	1, 0,
+	1, 0,	// top face (+y)
 	0, 0,
 	0, 1,
 	1, 0,
 	0, 1,
 	1, 1,
 
-	1, 0,
+	1, 0,	// bottom face (-y)
 	0, 0,
 	0, 1,
 	1, 0,
@@ -140,10 +144,17 @@ const GLushort BLOCK_INDICES[36] = {
 //	0, 1,
 //};
 
+enum class BlockType {
+	_Default = 0,
+	Grass = 1,
+	Stone = 2
+};
+
 struct VertexData3D
 {
 	glm::vec4 vertex;
 	glm::vec2 uv;
+	float tid;
 	GLuint color;
 };
 
@@ -153,16 +164,16 @@ private:
 	glm::vec4 m_Position;
 	glm::vec3 m_Size;
 	glm::vec4 m_Color;
-	Texture* m_Texture;
+	BlockType m_TypeID;
 
 public:
 	GLboolean isActive = true;
-	Renderable3D() : m_Texture(nullptr)
+	Renderable3D()
 	{
 	};
 
-	Renderable3D(glm::vec4 position, glm::vec3 size, glm::vec4 color)
-		: m_Position(position), m_Size(size), m_Color(color), m_Texture(nullptr)
+	Renderable3D(glm::vec4 position, glm::vec3 size, glm::vec4 color, BlockType typeID)
+		: m_Position(position), m_Size(size), m_Color(color), m_TypeID(typeID)
 	{
 	}
 	virtual ~Renderable3D() {}
@@ -170,7 +181,8 @@ public:
 	inline const glm::vec4 getPosition() const { return m_Position; };
 	inline const glm::vec3 getSize()	 const { return m_Size; };
 	inline const glm::vec4 getColor()	 const { return m_Color; };
-	inline const GLuint getTID()		 const { return m_Texture ? m_Texture->getID() : 0; };
+	inline const float getTextureIDfromTypeID() const { return (float)m_TypeID; };
+	//inline const int getTID()		 const { return m_Texture ? m_Texture->getID() : 0; };
 };
 
 #endif // !RENDERABLE_3D_H

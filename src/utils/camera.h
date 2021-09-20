@@ -74,7 +74,7 @@ class PerspectiveCamera : public Camera
 {
 private:
 	float m_FOV, m_Aspect, m_zNear, m_zFar;
-	float m_Pitch = 0.0f, m_Yaw = -90.0f;
+	float m_Pitch, m_Yaw;
 public:
 	PerspectiveCamera();
 	PerspectiveCamera(glm::vec3 position, glm::vec3 direction, float fov);
