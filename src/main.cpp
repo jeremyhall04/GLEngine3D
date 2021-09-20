@@ -21,6 +21,10 @@ UINT frames = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+Block*** createCubicChunk(float blockX, float blockY, float blockZ, float blockSize, const int& chunkSize);
+void deleteCubicChunk(Block*** chunk, int chunkSize);
+void submitCubeChunk(Renderer3D* renderer, Block*** chunk, int chunkSize);
+
 int main()
 {
 	Window window("3D Engine", SCR_WIDTH, SCR_HEIGHT);
@@ -46,36 +50,14 @@ int main()
 
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
-	shader->enable();
 
-	/*const int chunkSize = 16;
-	float blockSize = 1.0f;
-	float blockX = 0.0f, blockY = 0.0f, blockZ = 0.0f;
-	Block*** chunk;
-	chunk = new Block * *[chunkSize];
-	for (int i = 0; i < chunkSize; i++) {
-		chunk[i] = new Block *[chunkSize];
-		for (int j = 0; j < chunkSize; j++) {
-			chunk[i][j] = new Block[chunkSize];
-		}
-	}
+	Block* block = new Block(-3, 0, 0, 1, BlockType::Grass);
+	Block* block1 = new Block(-4, 0, 0, 1, BlockType::_Default);
+	Block* block2 = new Block(-2, 1, 0, 1, BlockType::Stone);
+	Block* block3 = new Block(2, 3, 2, 1, BlockType::Grass);
 
-	for (int i = 0; i < chunkSize; i++) {
-		blockX = i * blockSize;
-		for (int j = 0; j < chunkSize; j++) {
-			blockZ = j * blockSize;
-			for (int k = 0; k < chunkSize; k++) {
-				blockY = k * blockSize;
-				Block* newCube = new Block(blockX, blockY, -blockZ, blockSize, glm::vec4(0, 1, 1, 1));
-				chunk[i][j][k] = *newCube;
-			}
-		}
-	}*/
-
-	Block* block = new Block(0, 0, 0, 1, BlockType::Grass);
-	Block* block1 = new Block(-1, 0, 0, 1, BlockType::Stone);
-	Block* block2 = new Block(-1, 1, 0, 1, BlockType::Stone);
-	Block* block3 = new Block(1, 0, 0, 1, BlockType::Grass);
+	int cubeChunkSize = 5;
+	Block*** cubeChunk = createCubicChunk(0, 0, 0, 1.0f, cubeChunkSize);
 
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -87,70 +69,6 @@ int main()
 	//shader->setUniformMat4("vw_matrix", viewmatrix);
 	shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 	shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
-
-	// Initialize texture array
-	Texture _default("res/images/default.png"), grass("res/images/grass.png"), stone("res/images/stone.png");
-	
-	const int nTexLayers = 3;
-	const char* paths[nTexLayers];
-	paths[0] = "res/images/default.png";
-	paths[1] = "res/images/grass.png";
-	paths[2] = "res/images/stone.png";
-	int width = _default.getWidth(), height = _default.getHeight(), channels;
-	unsigned char* data;
-
-	//GLuint texID;
-	//glGenTextures(1, &texID);
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D_ARRAY, texID);
-
-	//glTexImage3D(GL_TEXTURE_2D_ARRAY,	// target
-	//				0,			// level
-	//				GL_RGB,		// internal format
-	//				width, height, nTexLayers,	// width, height, depth
-	//				0,			// border
-	//				GL_RGB,		// format
-	//				GL_UNSIGNED_BYTE, // type
-	//				0);
-
-	//stbi_set_flip_vertically_on_load(true);
-	//for (int i = 0; i < nTexLayers; i++)
-	//{
-	//	data = stbi_load(paths[i], &width, &height, &channels, 0);
-	//	if (data)
-	//	{
-	//		//glTexSubImage2D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-	//		glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
-	//			0,			// level
-	//			0, 0, i,	// x, y, z offsets
-	//			width, height, 1,
-	//			GL_RGB,
-	//			GL_UNSIGNED_BYTE,
-	//			data);
-
-	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//	}
-	//	else
-	//		printf("\nERROR::Image(%d) did not load", i);
-	//	stbi_image_free(data);
-	//}
-
-	//shader->setUniform1i("texArray", 0);
-	//shader->setUniform1i("layer", 0);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)_default.getID());
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)grass.getID());
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)stone.getID());
-
-	int texIndices[] = { 0, 1, 2 };
-	int nIndices = sizeof(texIndices) / sizeof(int);
-	shader->setUniform1iv("textures", nIndices, texIndices);
 
 	//------------------------
 
@@ -175,14 +93,12 @@ int main()
 		// Renderer
 		renderer.begin();
 
-		//for (int i = 0; i < chunkSize; i++)
-		//	for (int j = 0; j < chunkSize; j++)
-		//		for (int k = 0; k < chunkSize; k++)
-		//			renderer.submit(&chunk[i][j][k]);
-		renderer.submit(block);
-		renderer.submit(block1);
+		renderer.submit(block);	// grass
+		renderer.submit(block1);	// default
 		renderer.submit(block2);
 		renderer.submit(block3);
+
+		submitCubeChunk(&renderer, cubeChunk, cubeChunkSize);
 
 		renderer.end();
 		renderer.flush();
@@ -194,19 +110,56 @@ int main()
 		{
 			timer += 1.0f;
 			printf("\n%d fps", frames);
-			index + 1 >= 3 ? 0 : index++;
-			shader->setUniform1i("layer", index);
 			frames = 0;
 		}
 	}
 
-	//for (int i = 0; i < chunkSize; i++) {
-	//	for (int j = 0; j < chunkSize; j++) {
-	//		delete[] chunk[i][j];
-	//	}
-	//	delete[] chunk[i];
-	//}
-	//delete[] chunk;
+	deleteCubicChunk(cubeChunk, cubeChunkSize);
 
 	return 0;
+}
+
+Block*** createCubicChunk(float blockX, float blockY, float blockZ, float blockSize, const int& chunkSize)
+{
+	float bX = blockX, bY = blockY, bZ = blockZ;
+	Block*** chunk;
+	chunk = new Block * *[chunkSize];
+	for (int i = 0; i < chunkSize; i++) {
+		chunk[i] = new Block *[chunkSize];
+		for (int j = 0; j < chunkSize; j++) {
+			chunk[i][j] = new Block[chunkSize];
+		}
+	}
+
+	for (int i = 0; i < chunkSize; i++) {
+		bX = i * blockSize;
+		for (int j = 0; j < chunkSize; j++) {
+			bZ = j * blockSize;
+			for (int k = 0; k < chunkSize; k++) {
+				bY = k * blockSize;
+				Block* newCube = new Block(bX, bY, -bZ, blockSize, BlockType::Stone);
+				chunk[i][j][k] = *newCube;
+			}
+		}
+	}
+	return chunk;
+}
+
+void submitCubeChunk(Renderer3D* renderer, Block*** chunk, int chunkSize)
+{
+	for (int i = 0; i < chunkSize; i++)
+		for (int j = 0; j < chunkSize; j++)
+			for (int k = 0; k < chunkSize; k++)
+				renderer->submit(&chunk[i][j][k]);
+}
+
+void deleteCubicChunk(Block*** chunk, int chunkSize)
+{
+	for (int i = 0; i < chunkSize; i++) {
+		for (int j = 0; j < chunkSize; j++) {
+			delete[] chunk[i][j];
+		}
+		delete[] chunk[i];
+	}
+	delete[] chunk;
 }

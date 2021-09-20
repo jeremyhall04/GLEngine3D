@@ -31,9 +31,10 @@ private:
 	IndexBuffer* m_IBO;
 	VertexData3D* m_VertexBuffer;
 
-	GLuint* m_TextureSlotsPtr;
-	GLuint m_TextureSlotIndex = 0;
-	std::vector<GLuint> m_TextureSlotsVec;
+	Texture* m_Textures[MAX_TEXTURES];
+	int* m_TextureIndices;
+	//GLuint* m_TextureSlots;
+	//GLuint m_TextureSlotIndex = 0;
 
 public:
 	Shader* shader;
@@ -44,11 +45,11 @@ public:
 
 private:
 	void init();
-	void generateTextureIndices();
 	GLuint* allocateBlockIndices();
 	GLuint* allocate108BlockIndices();
 
 public:
+	void generateTextures();
 	VertexData3D* getVertexBuffer() { return m_VertexBuffer; };
 	void begin();
 	void submit(const Renderable3D* renderable);
@@ -56,6 +57,7 @@ public:
 	void flush();
 };
 
+void generateTextures(Shader* shader);
 
 #endif // !RENDERER_3D_H
 

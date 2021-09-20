@@ -181,7 +181,7 @@ public:
 	inline const glm::vec4 getPosition() const { return m_Position; };
 	inline const glm::vec3 getSize()	 const { return m_Size; };
 	inline const glm::vec4 getColor()	 const { return m_Color; };
-	inline const float getTextureIDfromTypeID() const { return (float)m_TypeID; };
+	inline const GLuint getTIDfromBlockType() const { return (GLuint)m_TypeID; };
 	//inline const int getTID()		 const { return m_Texture ? m_Texture->getID() : 0; };
 };
 

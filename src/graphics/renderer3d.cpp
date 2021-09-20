@@ -7,13 +7,18 @@ Renderer3D::Renderer3D()
 	shader = new Shader("res/shaders/texture.vert", "res/shaders/texture.frag");
 	shader->enable();
 	init();
-	//initTextures();
+	generateTextures();
 }
 
 Renderer3D::~Renderer3D()
 {
-	delete[] m_TextureSlotsPtr;
-	delete m_IBO;
+	for (int i = 0; i < MAX_TEXTURES; i++)
+		delete m_Textures[i];
+	delete[] m_TextureIndices;
+
+	if (m_IBO != nullptr)
+		delete m_IBO;
+
 	glDeleteBuffers(1, &m_VBO);
 }
 
@@ -51,43 +56,75 @@ void Renderer3D::init()
 
 	m_IBO = new IndexBuffer(allocate108BlockIndices(), MAX_INDICES);
 	glBindVertexArray(0);
-
-	//generateTextureIndices();
-	//for (int i = 0; i < MAX_TEXTURES; i++)
-	//	m_TextureSlotsVec.push_back(0);		// set all texture slots to 0
-	m_TextureSlotsPtr = new GLuint[MAX_TEXTURES];
-	for (int i = 0; i < MAX_TEXTURES; i++)
-		m_TextureSlotsPtr[i] = 0;
-	int samplers[MAX_TEXTURES];
-	for (int i = 0; i < MAX_TEXTURES; i++)
-		samplers[i] = i;
-
-	shader->setUniform1iv("textures", MAX_TEXTURES, samplers);
 }
 
-void Renderer3D::generateTextureIndices()
+void Renderer3D::generateTextures()
 {
-	for (int i = 0; i < MAX_TEXTURES; i++)
-		m_TextureSlotsVec.push_back(i);
+	m_TextureIndices = new int[MAX_INDICES];
 
-	Texture** m_Textures = new Texture * [MAX_TEXTURES];
-	for (int i = 0; i < MAX_TEXTURES; i++)
-		m_Textures[i] = new Texture();
+	m_Textures[0] = new Texture("res/images/default.png");
+	m_Textures[1] = new Texture("res/images/grass.png");
+	m_Textures[2] = new Texture("res/images/stone.png");
 
-	Texture _default("res/images/default.png"), grass("res/images/grass.png"), stone("res/images/stone.png");
-
-	m_Textures[0] = &_default;
-	m_Textures[1] = &grass;
-	m_Textures[2] = &stone;
-
-	printf("\nreal  ids = %d, %d, %d", _default.getID(), grass.getID(), stone.getID());
-	printf("\ntexture ids = %d, %d, %d", m_Textures[0]->getID(), m_Textures[1]->getID(), m_Textures[2]->getID());
-
-	for (int i = 0; i < 3; i++)
+	for (GLuint i = 0; i < MAX_TEXTURES; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, m_Textures[i]->getID());
+		m_TextureIndices[i] = i;
 	}
+
+	shader->setUniform1iv("textures", (int)MAX_TEXTURES, m_TextureIndices);
+
+	// Initialize texture array
+	/*//const int nTexLayers = 3;
+	//const char* paths[nTexLayers];
+	//paths[0] = "res/images/default.png";
+	//paths[1] = "res/images/grass.png";
+	//paths[2] = "res/images/stone.png";
+	//int width = _default.getWidth(), height = _default.getHeight(), channels;
+	//unsigned char* data;
+
+	//GLuint texID;
+	//glGenTextures(1, &texID);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D_ARRAY, texID);
+
+	//glTexImage3D(GL_TEXTURE_2D_ARRAY,	// target
+	//				0,			// level
+	//				GL_RGB,		// internal format
+	//				width, height, nTexLayers,	// width, height, depth
+	//				0,			// border
+	//				GL_RGB,		// format
+	//				GL_UNSIGNED_BYTE, // type
+	//				0);
+
+	//stbi_set_flip_vertically_on_load(true);
+	//for (int i = 0; i < nTexLayers; i++)
+	//{
+	//	data = stbi_load(paths[i], &width, &height, &channels, 0);
+	//	if (data)
+	//	{
+	//		//glTexSubImage2D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//		glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+	//			0,			// level
+	//			0, 0, i,	// x, y, z offsets
+	//			width, height, 1,
+	//			GL_RGB,
+	//			GL_UNSIGNED_BYTE,
+	//			data);
+
+	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//	}
+	//	else
+	//		printf("\nERROR::Image(%d) did not load", i);
+	//	stbi_image_free(data);
+	//}
+
+	//shader->setUniform1i("texArray", 0);
+	//shader->setUniform1i("layer", 0);*/
 }
 
 GLuint* Renderer3D::allocateBlockIndices()
@@ -116,11 +153,6 @@ GLuint* Renderer3D::allocate108BlockIndices()
 	return indices;
 }
 
-//const glm::vec3* Renderer3D::checkFaceToRender()
-//{
-//
-//}
-
 void Renderer3D::begin()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -132,6 +164,7 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	const glm::vec4 position = renderable->getPosition();
 	const glm::vec3 size = renderable->getSize();
 	const glm::vec4 color = renderable->getColor();
+	const GLuint blockTexID = renderable->getTIDfromBlockType();
 
 	float width = size.x;
 	float height = size.y;
@@ -159,7 +192,7 @@ void Renderer3D::submit(const Renderable3D* renderable)
 
 	//for (int i = 0; i < m_TextureSlotIndex; i++)
 	//{
-	//	if (m_TextureSlotsPtr[i] == (GLuint)renderable->getTextureIDfromTypeID())
+	//	if (m_TextureSlots[i] == blockTexID)
 	//	{
 	//		textureIndex = (float)i;
 	//		break;
@@ -169,7 +202,7 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	//if (textureIndex == 0.0f)
 	//{
 	//	textureIndex = (float)m_TextureSlotIndex; 
-	//	m_TextureSlotsPtr[m_TextureSlotIndex] = renderable->getTextureIDfromTypeID();
+	//	m_TextureSlots[m_TextureSlotIndex] = blockTexID;
 	//	m_TextureSlotIndex++;
 	//}
 
@@ -182,7 +215,7 @@ void Renderer3D::submit(const Renderable3D* renderable)
 		//if (i == 5 || i == 11 || i == 17 || i == 23 || i == 29)
 		//	printf("\n");
 		m_VertexBuffer->uv = glm::vec2(uv[0], uv[1]);
-		m_VertexBuffer->tid = renderable->getTextureIDfromTypeID();
+		m_VertexBuffer->tid = blockTexID;/*renderable->getTextureIDfromTypeID();*/
 		m_VertexBuffer->color = c;
 		m_VertexBuffer++;
 	}
@@ -227,4 +260,27 @@ void Renderer3D::flush()
 	glBindVertexArray(0);
 
 	m_IndexCount = 0;
+}
+
+void generateTextures(Shader* shader)
+{
+	Texture* textures[MAX_TEXTURES];
+	int* texIndices = new int[MAX_INDICES];
+
+	textures[0] = new Texture("res/images/default.png");
+	textures[1] = new Texture("res/images/grass.png");
+	textures[2] = new Texture("res/images/stone.png");
+
+	for (GLuint i = 0; i < MAX_TEXTURES; i++)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, textures[i]->getID());
+		texIndices[i] = i;
+	}
+
+	shader->setUniform1iv("textures", (int)MAX_TEXTURES, texIndices);
+
+	for (int i = 0; i < MAX_TEXTURES; i++)
+		delete textures[i];
+	delete[] texIndices;
 }
