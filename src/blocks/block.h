@@ -4,10 +4,21 @@
 #include "../GLcommon.h"
 #include "../graphics/renderable3D.h"
 
+struct BlockFaceDir {
+
+};
+
 class Block : public Renderable3D
 {
-private:
+public:
 	int m_ID;
+	bool isActive();
+	void activate(bool active);
+
+private:
+	bool m_isActive;
+	BlockType m_BlockType;
+
 public:
 	Block();
 	Block(float x, float y, float z, float cube_size, const glm::vec4 color);

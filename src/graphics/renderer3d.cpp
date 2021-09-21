@@ -63,8 +63,10 @@ void Renderer3D::generateTextures()
 	m_TextureIndices = new int[MAX_INDICES];
 
 	m_Textures[0] = new Texture("res/images/default.png");
-	m_Textures[1] = new Texture("res/images/grass.png");
-	m_Textures[2] = new Texture("res/images/stone.png");
+	m_Textures[1] = new Texture("res/images/dirt.png");
+	m_Textures[2] = new Texture("res/images/grass.png");
+	m_Textures[4] = new Texture("res/images/grass_side.png");
+	m_Textures[3] = new Texture("res/images/stone.png");
 
 	for (GLuint i = 0; i < MAX_TEXTURES; i++)
 	{

@@ -22,8 +22,11 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 Block*** createCubicChunk(float blockX, float blockY, float blockZ, float blockSize, const int& chunkSize);
-void deleteCubicChunk(Block*** chunk, int chunkSize);
 void submitCubeChunk(Renderer3D* renderer, Block*** chunk, int chunkSize);
+void deleteCubicChunk(Block*** chunk, int chunkSize);
+Block*** createChunk(float blockX, float blockY, float blockZ, GLuint width, GLuint height, GLuint depth, float blockSize, int& chunkSize);
+void submitChunk(Renderer3D* renderer, Block*** chunk, int chunkSize);
+void deleteChunk(Block*** chunk, int chunkSize);
 
 int main()
 {
@@ -46,21 +49,20 @@ int main()
 	shader->setuniformmat4("pr_matrix", perspective_projmatrix);
 	shader->setuniformmat4("vw_matrix", viewmatrix);*/
 
-	g_CameraPtr = new PerspectiveCamera(0, 0, 10.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));
+	g_CameraPtr = new PerspectiveCamera(0, 2.0f, 10.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));
 
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
 
-	Block* block = new Block(-3, 0, 0, 1, BlockType::Grass);
+	Block* block = new Block(-3, 0, 0, 1, BlockType::Dirt);
 	Block* block1 = new Block(-4, 0, 0, 1, BlockType::_Default);
-	Block* block2 = new Block(-2, 1, 0, 1, BlockType::Stone);
+	Block* block2 = new Block(-3, 0, -1, 1, BlockType::Stone);
 	Block* block3 = new Block(2, 3, 2, 1, BlockType::Grass);
 
 	int cubeChunkSize = 5;
 	Block*** cubeChunk = createCubicChunk(0, 0, 0, 1.0f, cubeChunkSize);
 
 	glEnable(GL_DEPTH_TEST);
-	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -72,10 +74,9 @@ int main()
 
 	//------------------------
 
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.3f, 0.5f, 0.8f, 1.0f);
 
 	double x = 0.0, y = 0.0;
-	int index = 0;
 	while (!glfwWindowShouldClose(window.context))
 	{
 		float currentFrame = glfwGetTime();
@@ -83,7 +84,7 @@ int main()
 		lastFrame = currentFrame;
 
 		window.clear();
-		window.processInput();
+		window.processInput(deltaTime);
 
 		shader->enable();
 		shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
@@ -162,4 +163,31 @@ void deleteCubicChunk(Block*** chunk, int chunkSize)
 		delete[] chunk[i];
 	}
 	delete[] chunk;
+}
+
+Block*** createChunk(float xOffset, float yOffset, float zOffset, int width, int height, int depth, float blockSize, BlockType type, int& nBlocks)
+{
+	float bX = xOffset, bY = yOffset, bZ = zOffset;
+	Block*** chunk;
+	nBlocks = width * height * depth;
+	chunk = new Block * *[width];
+	for (int i = 0; i < depth; i++) {
+		chunk[i] = new Block * [depth];
+		for (int j = 0; j < height; j++) {
+			chunk[i][j] = new Block[height];
+		}
+	}
+
+	for (int i = 0; i < width; i++) {
+		bX = i * blockSize;
+		for (int j = 0; j < depth; j++) {
+			bZ = j * blockSize;
+			for (int k = 0; k < height; k++) {
+				bY = k * blockSize;
+				Block* newCube = new Block(bX, bY, -bZ, blockSize, type);
+				chunk[i][j][k] = *newCube;
+			}
+		}
+	}
+	return chunk;
 }

@@ -4,7 +4,9 @@
 #include <fstream>
 
 Texture::Texture()
+	: m_FileName("res/images/default.png")
 {
+	load();
 }
 
 
@@ -23,7 +25,7 @@ void Texture::load()
 {
 	unsigned char* data;
 	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load(m_FileName, &m_Width, &m_Height, &m_Channels, 0);
+	data = stbi_load(m_FileName, &m_Width, &m_Height, &m_Channels, STBI_rgb_alpha);
 	if (data)
 	{
 		glGenTextures(1, &m_TextureID);
@@ -34,10 +36,9 @@ void Texture::load()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, (const void*)data);
-		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, (const void*)data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)data);
+
+		glGenerateMipmap(GL_TEXTURE_2D);		
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else

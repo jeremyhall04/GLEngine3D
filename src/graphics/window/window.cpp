@@ -51,7 +51,7 @@ Window::Window(const char* windowTitle, int width, int height)
 	glfwSetCursorPosCallback(context, mouse_callback);
 	glfwSetInputMode(context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	glfwSwapInterval(1);	// 0 for uncap fps
+	glfwSwapInterval(0);	// 0 for uncap fps
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -93,24 +93,24 @@ void Window::update()
 	glfwPollEvents();
 }
 
-void Window::processInput()
+void Window::processInput(float deltaTime)
 {
 	static bool wasPressed;
 	if (glfwGetKey(context, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(context, true);
 
 	if (glfwGetKey(context, GLFW_KEY_W) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(FORWARD, 0.0f);
+		g_CameraPtr->processKeyboardInput(FORWARD, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(BACKWARD, 0.0f);
+		g_CameraPtr->processKeyboardInput(BACKWARD, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_A) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(LEFT, 0.0f);
+		g_CameraPtr->processKeyboardInput(LEFT, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_D) == GLFW_PRESS)
- 		g_CameraPtr->processKeyboardInput(RIGHT, 0.0f);
+ 		g_CameraPtr->processKeyboardInput(RIGHT, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(UP, 0.0f);
+		g_CameraPtr->processKeyboardInput(UP, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(DOWN, 0.0f);
+		g_CameraPtr->processKeyboardInput(DOWN, deltaTime);
 
 	if (glfwGetKey(context, GLFW_KEY_O) == GLFW_PRESS && !wasPressed)
 	{

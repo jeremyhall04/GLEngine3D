@@ -75,19 +75,19 @@ void PerspectiveCamera::processKeyboardInput(GLFWwindow* window, float deltaTime
 
 void PerspectiveCamera::processKeyboardInput(CameraMovement direction, float deltaTime)
 {
-	//float velocity = m_CameraSpeed * deltaTime;
+	float velocity = m_CameraSpeed * deltaTime;
 	if (direction == FORWARD)
-		m_Position += m_Direction * m_CameraSpeed;
+		m_Position += glm::vec3(m_Direction.x * velocity, 0.0f, m_Direction.z * velocity);
 	if (direction == BACKWARD)
-		m_Position -= m_Direction * m_CameraSpeed;
+		m_Position -= glm::vec3(m_Direction.x * velocity, 0.0f, m_Direction.z * velocity);
 	if (direction == LEFT)
-		m_Position -= m_Right * m_CameraSpeed;
+		m_Position -= glm::vec3(m_Right.x * velocity, 0.0f, m_Right.z * velocity);
 	if (direction == RIGHT)
-		m_Position += m_Right * m_CameraSpeed;
+		m_Position += glm::vec3(m_Right.x * velocity, 0.0f, m_Right.z * velocity);
 	if (direction == UP)
-		m_Position.y += m_CameraSpeed;
+		m_Position.y += velocity;
 	if (direction == DOWN)
-		m_Position.y -= m_CameraSpeed;
+		m_Position.y -= velocity;
 
 	//printf("\n%f, %f", m_Position.x, m_Position.y, m_Position.z);
 

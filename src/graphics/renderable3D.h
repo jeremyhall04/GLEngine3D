@@ -146,8 +146,9 @@ const GLushort BLOCK_INDICES[36] = {
 
 enum class BlockType {
 	_Default = 0,
-	Grass = 1,
-	Stone = 2
+	Dirt = 1,
+	Grass = 2,
+	Stone = 3
 };
 
 struct VertexData3D

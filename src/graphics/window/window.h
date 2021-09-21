@@ -23,7 +23,7 @@ public:
 	bool isClose();
 	void clear();
 	void update();
-	void processInput();
+	void processInput(float deltaTime);
 	void getMousePos(double& x, double& y);
 
 	GLFWwindow* context;
