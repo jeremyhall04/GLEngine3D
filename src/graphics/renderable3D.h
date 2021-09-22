@@ -57,7 +57,7 @@ const GLfloat BLOCK_VERTICES[3 * 6 * 6] = {
 	1, 0, 0,
 };
 
-const GLfloat BLOCK_UV[3 * 36] = {
+const GLfloat BLOCK_UV[6 * 12] = {
 	// south face (-z)
 	1, 0,
 	0, 0,
@@ -103,13 +103,48 @@ const GLfloat BLOCK_UV[3 * 36] = {
 	1, 1
 };
 
-const int BLOCK_NORMALS[18] = {
-	 0,  0,  1, // North
+const float BLOCK_NORMALS[6 * 18] = {
 	 0,  0, -1, // South
+	 0,  0, -1,
+	 0,  0, -1,
+	 0,  0, -1,
+	 0,  0, -1,
+	 0,  0, -1,
+
+	 0,  0,  1, // North
+	 0,  0,  1,
+	 0,  0,  1,
+	 0,  0,  1,
+	 0,  0,  1,
+	 0,  0,  1,
+
 	 1,  0,  0, // East
+	 1,  0,  0,
+	 1,  0,  0,
+	 1,  0,  0,
+	 1,  0,  0,
+	 1,  0,  0,
+
 	-1,  0,  0, // West
+	-1,  0,  0,
+	-1,  0,  0,
+	-1,  0,  0,
+	-1,  0,  0,
+	-1,  0,  0,
+
 	 0,  1,  0, // Top
-	 0, -1,  0  // Bottom
+	 0,  1,  0,
+	 0,  1,  0,
+	 0,  1,  0,
+	 0,  1,  0,
+	 0,  1,  0,
+
+	 0, -1,  0, // Bottom
+	 0, -1,  0,
+	 0, -1,  0,
+	 0, -1,  0,
+	 0, -1,  0,
+	 0, -1,  0,
 };
 
 const GLfloat BLOCK_INDEXED_VERTICES[24] = {
@@ -153,7 +188,8 @@ enum class BlockType {
 
 struct VertexData3D
 {
-	glm::vec4 vertex;
+	glm::vec3 vertex;
+	glm::vec3 normal;
 	glm::vec2 uv;
 	float tid;
 	GLuint color;
@@ -162,7 +198,7 @@ struct VertexData3D
 class Renderable3D
 {
 private:
-	glm::vec4 m_Position;
+	glm::vec3 m_Position;
 	glm::vec3 m_Size;
 	glm::vec4 m_Color;
 	BlockType m_TypeID;
@@ -173,13 +209,13 @@ public:
 	{
 	};
 
-	Renderable3D(glm::vec4 position, glm::vec3 size, glm::vec4 color, BlockType typeID)
+	Renderable3D(glm::vec3 position, glm::vec3 size, glm::vec4 color, BlockType typeID)
 		: m_Position(position), m_Size(size), m_Color(color), m_TypeID(typeID)
 	{
 	}
 	virtual ~Renderable3D() {}
 
-	inline const glm::vec4 getPosition() const { return m_Position; };
+	inline const glm::vec3 getPosition() const { return m_Position; };
 	inline const glm::vec3 getSize()	 const { return m_Size; };
 	inline const glm::vec4 getColor()	 const { return m_Color; };
 	inline const GLuint getTIDfromBlockType() const { return (GLuint)m_TypeID; };

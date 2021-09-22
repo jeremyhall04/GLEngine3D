@@ -51,6 +51,7 @@ public:
 	virtual void update() {}
 	glm::mat4 getViewMatrix() { return m_ViewProj.view; };
 	glm::mat4 getProjectionMatrix() { return m_ViewProj.projection; };
+	const glm::vec3& getPosition() { return m_Position; };
 };
 
 //-----------------------------------------------------------------------------------------------------

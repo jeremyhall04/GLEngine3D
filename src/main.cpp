@@ -25,8 +25,8 @@ Block*** createCubicChunk(float blockX, float blockY, float blockZ, float blockS
 void submitCubeChunk(Renderer3D* renderer, Block*** chunk, int chunkSize);
 void deleteCubicChunk(Block*** chunk, int chunkSize);
 Block*** createChunk(float blockX, float blockY, float blockZ, GLuint width, GLuint height, GLuint depth, float blockSize, int& chunkSize);
-void submitChunk(Renderer3D* renderer, Block*** chunk, int chunkSize);
-void deleteChunk(Block*** chunk, int chunkSize);
+
+#define RENDER_CHUNK 0
 
 int main()
 {
@@ -54,13 +54,15 @@ int main()
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
 
-	Block* block = new Block(-3, 0, 0, 1, BlockType::Dirt);
-	Block* block1 = new Block(-4, 0, 0, 1, BlockType::_Default);
-	Block* block2 = new Block(-3, 0, -1, 1, BlockType::Stone);
+	Block* block = new Block(0, 0, 0, 1, BlockType::Dirt);
+	Block* block1 = new Block(-1, 0, 0, 1, BlockType::_Default);
+	Block* block2 = new Block(0, 1, 1, 1, BlockType::Stone);
 	Block* block3 = new Block(2, 3, 2, 1, BlockType::Grass);
 
+#if RENDER_CHUNK
 	int cubeChunkSize = 5;
 	Block*** cubeChunk = createCubicChunk(0, 0, 0, 1.0f, cubeChunkSize);
+#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -85,8 +87,9 @@ int main()
 
 		window.clear();
 		window.processInput(deltaTime);
-
+		
 		shader->enable();
+		//shader->setUniform3f("viewPos", g_CameraPtr->getPosition());	// for specular lighting
 		shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 		shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
 		//shader->setUniformMat4("ml_matrix", glm::rotate(glm::mat4(1.0f), glm::radians(time.elapsed() * 20.0f), glm::vec3(1.0f, 1.0f, 0.0f)));
@@ -99,7 +102,9 @@ int main()
 		renderer.submit(block2);
 		renderer.submit(block3);
 
+#if RENDER_CHUNK
 		submitCubeChunk(&renderer, cubeChunk, cubeChunkSize);
+#endif
 
 		renderer.end();
 		renderer.flush();
@@ -115,8 +120,9 @@ int main()
 		}
 	}
 
+#if RENDER_CHUNK
 	deleteCubicChunk(cubeChunk, cubeChunkSize);
-
+#endif
 	return 0;
 }
 

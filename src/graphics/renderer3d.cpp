@@ -6,6 +6,8 @@ Renderer3D::Renderer3D()
 {
 	shader = new Shader("res/shaders/texture.vert", "res/shaders/texture.frag");
 	shader->enable();
+	//shader->setUniform3f("lightPos", glm::vec3(0.0f, 0.0f, 2.0f)); // for lighting
+	//shader->setUniform3f("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 	init();
 	generateTextures();
 }
@@ -31,14 +33,16 @@ void Renderer3D::init()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glBufferData(GL_ARRAY_BUFFER, BUFFER_SIZE, NULL, GL_DYNAMIC_DRAW);
 
-	glEnableVertexAttribArray(SHADER_VERTEX_INDEX_3D);
-	glEnableVertexAttribArray(SHADER_UV_INDEX_3D);
-	glEnableVertexAttribArray(SHADER_TID_INDEX_3D);
-	glEnableVertexAttribArray(SHADER_COLOR_INDEX_3D);
-	glVertexAttribPointer(SHADER_VERTEX_INDEX_3D,	4, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)0);
-	glVertexAttribPointer(SHADER_UV_INDEX_3D,		2, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::uv)));
-	glVertexAttribPointer(SHADER_TID_INDEX_3D,		1, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::tid)));
-	glVertexAttribPointer(SHADER_COLOR_INDEX_3D,	4, GL_UNSIGNED_BYTE, GL_TRUE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::color)));
+	glEnableVertexAttribArray(SHADER_VERTEX_INDEX);
+	glEnableVertexAttribArray(SHADER_NORMAL_INDEX);
+	glEnableVertexAttribArray(SHADER_UV_INDEX);
+	glEnableVertexAttribArray(SHADER_TID_INDEX);
+	glEnableVertexAttribArray(SHADER_COLOR_INDEX);
+	glVertexAttribPointer(SHADER_VERTEX_INDEX,	3, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)0);
+	glVertexAttribPointer(SHADER_NORMAL_INDEX,	3, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::normal)));
+	glVertexAttribPointer(SHADER_UV_INDEX,		2, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::uv)));
+	glVertexAttribPointer(SHADER_TID_INDEX,		1, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::tid)));
+	glVertexAttribPointer(SHADER_COLOR_INDEX,	4, GL_UNSIGNED_BYTE, GL_TRUE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::color)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	// unbind array buffer
 
@@ -163,7 +167,7 @@ void Renderer3D::begin()
 
 void Renderer3D::submit(const Renderable3D* renderable)
 {
-	const glm::vec4 position = renderable->getPosition();
+	const glm::vec3 position = renderable->getPosition();
 	const glm::vec3 size = renderable->getSize();
 	const glm::vec4 color = renderable->getColor();
 	const GLuint blockTexID = renderable->getTIDfromBlockType();
@@ -211,11 +215,10 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	for (int i = 0; i < 36; i++)
 	{
 		const float* vertex = &BLOCK_VERTICES[i * 3];
+		const float* normal = &BLOCK_NORMALS[i * 3];
 		const float* uv = &BLOCK_UV[i * 2];
-		m_VertexBuffer->vertex = glm::vec4(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth, position.w);
-		//printf("\nblock vertices = <%f, %f, %f>", position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
-		//if (i == 5 || i == 11 || i == 17 || i == 23 || i == 29)
-		//	printf("\n");
+		m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
+		m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
 		m_VertexBuffer->uv = glm::vec2(uv[0], uv[1]);
 		m_VertexBuffer->tid = blockTexID;/*renderable->getTextureIDfromTypeID();*/
 		m_VertexBuffer->color = c;
