@@ -15,7 +15,10 @@ in DATA
 uniform sampler2D textures[32];
 
 void main() {
-
-	frag_color = texture(textures[int(fs_in.texIndex)], fs_in.uv);// * vec4(result, 1.0);
+	
+	vec4 frag = texture(textures[int(fs_in.texIndex)], fs_in.uv);
+//	if (frag.a < 0.1)
+//		discard;
+	frag_color = frag;
 
 }

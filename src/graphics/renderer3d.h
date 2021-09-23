@@ -6,7 +6,8 @@
 #include "../GLcommon.h"
 #include "../GLcommon_math.h"
 #include "renderable3D.h"
-#include "../blocks/block.h"
+//#include "../blocks/block.h"
+//#include "../blocks/chunk.h"
 #include "texture/texture.h"
 #include "shader.h"
 
@@ -22,6 +23,9 @@
 #define SHADER_UV_INDEX		2
 #define SHADER_TID_INDEX	3
 #define SHADER_COLOR_INDEX	4
+
+class Block;
+class Chunk;
 
 class Renderer3D
 {
@@ -54,6 +58,7 @@ public:
 	VertexData3D* getVertexBuffer() { return m_VertexBuffer; };
 	void begin();
 	void submit(const Renderable3D* renderable);
+	void addChunkToRender(Chunk* chunk);
 	void end();
 	void flush();
 };

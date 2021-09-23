@@ -1,6 +1,8 @@
 #ifndef CHUNK_MESH_H
 #define CHUNK_MESH_H
 
+#include "../graphics/renderer3d.h"
+
 class Chunk; // forward declaration
 
 struct ChunkMeshBuffer
@@ -15,9 +17,9 @@ struct ChunkMeshBuffer
 class ChunkMesh
 {
 	Chunk* chunk;
-	ChunkMeshBuffer buffers[];
+	ChunkMeshBuffer buffers;
 
-	
+	Renderer3D renderer;
 };
 
 #endif // !CHUNK_MESH_H

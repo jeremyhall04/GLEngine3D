@@ -1,5 +1,5 @@
 #include "renderer3d.h"
-
+#include "../blocks/chunk.h"
 #include <iostream>
 
 Renderer3D::Renderer3D()
@@ -235,6 +235,57 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	m_IndexCount += 36;
 }
 
+void Renderer3D::addChunkToRender(Chunk* chunk)
+{
+	frustumCull(chunk);
+	if (chunk->isRender)
+	{
+		printf("\nchunk is rendering");
+		for (int j = 0; j < CHUNK_SIZE_MAX; j++)
+			for (int k = 0; k < CHUNK_SIZE_MAX; k++)
+				for (int i = 0; i < CHUNK_SIZE_MAX; i++)
+				{
+					//occlusionCull(chunk, glm::vec3(i, j, k));
+					if (chunk->chunkBlocks[i][j][k].isActive())
+						submit(&chunk->chunkBlocks[i][j][k]);
+				}
+	}
+}
+
+//void Renderer3D::submit(const Block* block)
+//{
+//	const glm::vec3 position = block->getPosition();
+//	const glm::vec3 size = block->getSize();
+//	const glm::vec4 color = block->getColor();
+//	const GLuint blockTexID = block->getTIDfromBlockType();
+//
+//	float width = size.x;
+//	float height = size.y;
+//	float depth = size.z;
+//
+//	int r = (int)color.x * 255;
+//	int g = (int)color.y * 255;
+//	int b = (int)color.z * 255;
+//	int a = (int)color.w * 255;
+//
+//	GLuint c = a << 24 | b << 16 | g << 8 | r;
+//
+//	for (int i = 0; i < 36; i++)
+//	{
+//		const float* vertex = &BLOCK_VERTICES[i * 3];
+//		const float* normal = &BLOCK_NORMALS[i * 3];
+//		const float* uv = &BLOCK_UV[i * 2];
+//		m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
+//		m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
+//		m_VertexBuffer->uv = glm::vec2(uv[0], uv[1]);
+//		m_VertexBuffer->tid = blockTexID;/*renderable->getTextureIDfromTypeID();*/
+//		m_VertexBuffer->color = c;
+//		m_VertexBuffer++;
+//	}
+//
+//	m_IndexCount += 36;
+//}
+
 void Renderer3D::end()
 {
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -243,7 +294,6 @@ void Renderer3D::end()
 
 void Renderer3D::flush()
 {
-
 	/*glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	m_VertexBuffer = (VertexData3D*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 

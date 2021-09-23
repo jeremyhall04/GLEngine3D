@@ -52,6 +52,9 @@ public:
 	glm::mat4 getViewMatrix() { return m_ViewProj.view; };
 	glm::mat4 getProjectionMatrix() { return m_ViewProj.projection; };
 	const glm::vec3& getPosition() { return m_Position; };
+	const glm::vec3& getDirection() { return m_Direction; };
+	const glm::vec3& getRight() { return m_Right; };
+	const glm::vec3& getUp() { return m_Up; };
 };
 
 //-----------------------------------------------------------------------------------------------------
@@ -86,7 +89,7 @@ public:
 	void processMouseMovement(GLFWwindow* window, double xpos, double ypos);
 	void processMouseMovement(float xOffset, float yOffset);
 	void update() override;
-
+	const glm::vec4& getPerspectiveParams() const { return glm::vec4(m_FOV, m_Aspect, m_zNear, m_zFar); };
 };
 
 #endif // !CAMERA_H

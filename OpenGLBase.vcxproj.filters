@@ -63,6 +63,12 @@
     <ClCompile Include="src\blocks\chunkmesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\buffers\framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\frustum\frustum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h">
@@ -125,16 +131,22 @@
     <ClInclude Include="src\blocks\chunkmesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\buffers\framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\frustum\frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.frag" />
     <None Include="res\shaders\basic.vert" />
-    <None Include="res\shaders\shader.fs" />
-    <None Include="res\shaders\shader.vs" />
     <None Include="res\shaders\texture.frag" />
     <None Include="res\shaders\texture.vert" />
     <None Include="res\shaders\lighting.frag" />
     <None Include="res\shaders\lighting.vert" />
+    <None Include="res\shaders\quad.vert" />
+    <None Include="res\shaders\quad.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\images\blocks.png">

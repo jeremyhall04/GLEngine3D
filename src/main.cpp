@@ -4,6 +4,7 @@
 #include "graphics/shader.h"
 
 #include "blocks/block.h"
+#include "blocks/chunk.h"
 #include "graphics/renderable3D.h"
 #include "graphics/renderer3d.h"
 #include "graphics/texture/texture.h"
@@ -21,12 +22,7 @@ UINT frames = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Block*** createCubicChunk(float blockX, float blockY, float blockZ, float blockSize, const int& chunkSize);
-void submitCubeChunk(Renderer3D* renderer, Block*** chunk, int chunkSize);
-void deleteCubicChunk(Block*** chunk, int chunkSize);
-Block*** createChunk(float blockX, float blockY, float blockZ, GLuint width, GLuint height, GLuint depth, float blockSize, int& chunkSize);
-
-#define RENDER_CHUNK 0
+#define RENDER3D 0
 
 int main()
 {
@@ -49,32 +45,69 @@ int main()
 	shader->setuniformmat4("pr_matrix", perspective_projmatrix);
 	shader->setuniformmat4("vw_matrix", viewmatrix);*/
 
-	g_CameraPtr = new PerspectiveCamera(0, 2.0f, 10.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));
+	g_CameraPtr = new PerspectiveCamera(0, 2.0f, 10.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
+
+	//glm::mat4 m(glm::vec4(3, 2, 1, 4), glm::vec4(7, 4, 6, 6), glm::vec4(3, 3, 2, 1), glm::vec4(6, 6, 1, 0));
+	//glm::vec4 v(3, 4, 3, 4);
+	//glm::vec4 mv = v * m;
+	//printf("\nv * m = \n%f\n%f\n%f\n%f\n\n", mv[0], mv[1], mv[2], mv[3]);
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	printf("\n");
+	//	for (int j = 0; j < 4; j++)
+	//	{
+	//		printf("%d\t", (int)m[i][j]);
+	//		//printf("\nm[%d][%d] = %f", i, j, m[i][j]);
+	//	}
+	//}
+
+	//printf("\nm[4][1] = %d", (int)m[3][0]);
+	//printf("\nm[3][4] = %d", (int)m[2][3]);
 
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
+	/*Shader* shader2D = new Shader("res/shaders/quad.vert", "res/shaders/quad.frag");
 
+	float quadVertices[] = {
+		// position		// uv
+		 0.5f,  0.5f, 0.0f, 0.0f,
+		 0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f,  0.5f, 1.0f, 1.0f,
+	};
+
+	shader2D->enable();
+	GLuint quadVAO, quadVBO;
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	Texture quadTex("res/images/grass.png");
+	//shader2D->setUniform1i("quadTexture", quadTex.getID());*/
+
+	shader->enable();
 	Block* block = new Block(0, 0, 0, 1, BlockType::Dirt);
 	Block* block1 = new Block(-1, 0, 0, 1, BlockType::_Default);
 	Block* block2 = new Block(0, 1, 1, 1, BlockType::Stone);
 	Block* block3 = new Block(2, 3, 2, 1, BlockType::Grass);
-
-#if RENDER_CHUNK
-	int cubeChunkSize = 5;
-	Block*** cubeChunk = createCubicChunk(0, 0, 0, 1.0f, cubeChunkSize);
-#endif
+	
+	Chunk chunk(0.0f, 0.0f, 0.0f);
+	chunk.generateChunk(BlockType::Stone);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	//shader->setUniformMat4("pr_matrix", perspective_projmatrix);
-	//shader->setUniformMat4("vw_matrix", viewmatrix);
 	shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 	shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
-
-	//------------------------
 
 	glClearColor(0.3f, 0.5f, 0.8f, 1.0f);
 
@@ -87,13 +120,13 @@ int main()
 
 		window.clear();
 		window.processInput(deltaTime);
-		
+			
 		shader->enable();
 		//shader->setUniform3f("viewPos", g_CameraPtr->getPosition());	// for specular lighting
 		shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 		shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
 		//shader->setUniformMat4("ml_matrix", glm::rotate(glm::mat4(1.0f), glm::radians(time.elapsed() * 20.0f), glm::vec3(1.0f, 1.0f, 0.0f)));
-
+	
 		// Renderer
 		renderer.begin();
 
@@ -102,9 +135,7 @@ int main()
 		renderer.submit(block2);
 		renderer.submit(block3);
 
-#if RENDER_CHUNK
-		submitCubeChunk(&renderer, cubeChunk, cubeChunkSize);
-#endif
+		renderer.addChunkToRender(&chunk);
 
 		renderer.end();
 		renderer.flush();
@@ -120,80 +151,7 @@ int main()
 		}
 	}
 
-#if RENDER_CHUNK
-	deleteCubicChunk(cubeChunk, cubeChunkSize);
-#endif
+	delete g_CameraPtr;
+
 	return 0;
-}
-
-Block*** createCubicChunk(float blockX, float blockY, float blockZ, float blockSize, const int& chunkSize)
-{
-	float bX = blockX, bY = blockY, bZ = blockZ;
-	Block*** chunk;
-	chunk = new Block * *[chunkSize];
-	for (int i = 0; i < chunkSize; i++) {
-		chunk[i] = new Block *[chunkSize];
-		for (int j = 0; j < chunkSize; j++) {
-			chunk[i][j] = new Block[chunkSize];
-		}
-	}
-
-	for (int i = 0; i < chunkSize; i++) {
-		bX = i * blockSize;
-		for (int j = 0; j < chunkSize; j++) {
-			bZ = j * blockSize;
-			for (int k = 0; k < chunkSize; k++) {
-				bY = k * blockSize;
-				Block* newCube = new Block(bX, bY, -bZ, blockSize, BlockType::Stone);
-				chunk[i][j][k] = *newCube;
-			}
-		}
-	}
-	return chunk;
-}
-
-void submitCubeChunk(Renderer3D* renderer, Block*** chunk, int chunkSize)
-{
-	for (int i = 0; i < chunkSize; i++)
-		for (int j = 0; j < chunkSize; j++)
-			for (int k = 0; k < chunkSize; k++)
-				renderer->submit(&chunk[i][j][k]);
-}
-
-void deleteCubicChunk(Block*** chunk, int chunkSize)
-{
-	for (int i = 0; i < chunkSize; i++) {
-		for (int j = 0; j < chunkSize; j++) {
-			delete[] chunk[i][j];
-		}
-		delete[] chunk[i];
-	}
-	delete[] chunk;
-}
-
-Block*** createChunk(float xOffset, float yOffset, float zOffset, int width, int height, int depth, float blockSize, BlockType type, int& nBlocks)
-{
-	float bX = xOffset, bY = yOffset, bZ = zOffset;
-	Block*** chunk;
-	nBlocks = width * height * depth;
-	chunk = new Block * *[width];
-	for (int i = 0; i < depth; i++) {
-		chunk[i] = new Block * [depth];
-		for (int j = 0; j < height; j++) {
-			chunk[i][j] = new Block[height];
-		}
-	}
-
-	for (int i = 0; i < width; i++) {
-		bX = i * blockSize;
-		for (int j = 0; j < depth; j++) {
-			bZ = j * blockSize;
-			for (int k = 0; k < height; k++) {
-				bY = k * blockSize;
-				Block* newCube = new Block(bX, bY, -bZ, blockSize, type);
-				chunk[i][j][k] = *newCube;
-			}
-		}
-	}
-	return chunk;
 }

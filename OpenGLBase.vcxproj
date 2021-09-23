@@ -159,6 +159,8 @@
     <ClCompile Include="src\blocks\chunk.cpp" />
     <ClCompile Include="src\blocks\chunkmesh.cpp" />
     <ClCompile Include="src\blocks\grass.cpp" />
+    <ClCompile Include="src\graphics\buffers\framebuffer.cpp" />
+    <ClCompile Include="src\graphics\frustum\frustum.cpp" />
     <ClCompile Include="src\graphics\renderer3d.cpp" />
     <ClCompile Include="src\graphics\texture\texture.cpp" />
     <ClCompile Include="src\graphics\buffers\buffer.cpp" />
@@ -175,6 +177,8 @@
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="src\blocks\chunk.h" />
     <ClInclude Include="src\blocks\chunkmesh.h" />
+    <ClInclude Include="src\graphics\buffers\framebuffer.h" />
+    <ClInclude Include="src\graphics\frustum\frustum.h" />
     <ClInclude Include="src\graphics\texture\texture.h" />
     <ClInclude Include="src\state.h" />
     <ClInclude Include="src\utils\camera.h" />
@@ -198,8 +202,8 @@
     <None Include="res\shaders\basic.vert" />
     <None Include="res\shaders\lighting.frag" />
     <None Include="res\shaders\lighting.vert" />
-    <None Include="res\shaders\shader.fs" />
-    <None Include="res\shaders\shader.vs" />
+    <None Include="res\shaders\quad.frag" />
+    <None Include="res\shaders\quad.vert" />
     <None Include="res\shaders\texture.frag" />
     <None Include="res\shaders\texture.vert" />
   </ItemGroup>
