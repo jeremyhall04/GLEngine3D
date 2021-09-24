@@ -31,7 +31,7 @@ OrthoCamera::OrthoCamera(float xPos, float yPos, float zPos, glm::vec3 direction
 void OrthoCamera::update()
 {
 	m_ViewProj.view = glm::mat4(1.0f);
-	m_ViewProj.projection = glm::ortho(m_HorLimits[0], m_HorLimits[1], m_VertLimits[0], m_VertLimits[1], -100.0f, 100.0f);
+	m_ViewProj.perspective = glm::ortho(m_HorLimits[0], m_HorLimits[1], m_VertLimits[0], m_VertLimits[1], -100.0f, 100.0f);
 }
 
 
@@ -49,7 +49,7 @@ PerspectiveCamera::PerspectiveCamera(glm::vec3 position, glm::vec3 direction, fl
 }
 
 PerspectiveCamera::PerspectiveCamera(float xPos, float yPos, float zPos, glm::vec3 direction, float fov)
-	: Camera(glm::vec3(xPos, yPos, zPos), direction, type_PerspectiveCamera), m_FOV(fov), m_Aspect((float)SCR_WIDTH / (float)SCR_HEIGHT), m_zNear(0.01f), m_zFar(100.0f)
+	: Camera(glm::vec3(xPos, yPos, zPos), direction, type_PerspectiveCamera), m_FOV(fov), m_Aspect((float)SCR_WIDTH / (float)SCR_HEIGHT), m_zNear(0.1f), m_zFar(100.0f)
 {
 	m_Pitch = 0.0f;
 	m_Yaw = (atan2(direction.z, direction.x) * 180) / PI;
@@ -76,17 +76,17 @@ void PerspectiveCamera::processKeyboardInput(GLFWwindow* window, float deltaTime
 void PerspectiveCamera::processKeyboardInput(CameraMovement direction, float deltaTime)
 {
 	float velocity = m_CameraSpeed * deltaTime;
-	if (direction == FORWARD)
+	if (direction == CameraMovement::FORWARD)
 		m_Position += glm::vec3(m_Direction.x * velocity, 0.0f, m_Direction.z * velocity);
-	if (direction == BACKWARD)
+	if (direction == CameraMovement::BACKWARD)
 		m_Position -= glm::vec3(m_Direction.x * velocity, 0.0f, m_Direction.z * velocity);
-	if (direction == LEFT)
+	if (direction == CameraMovement::LEFT)
 		m_Position -= glm::vec3(m_Right.x * velocity, 0.0f, m_Right.z * velocity);
-	if (direction == RIGHT)
+	if (direction == CameraMovement::RIGHT)
 		m_Position += glm::vec3(m_Right.x * velocity, 0.0f, m_Right.z * velocity);
-	if (direction == UP)
+	if (direction == CameraMovement::UP)
 		m_Position.y += velocity;
-	if (direction == DOWN)
+	if (direction == CameraMovement::DOWN)
 		m_Position.y -= velocity;
 
 	//printf("\n%f, %f", m_Position.x, m_Position.y, m_Position.z);
@@ -160,7 +160,22 @@ void PerspectiveCamera::update()
 	m_Direction = glm::normalize(dir);
 	m_Right = glm::normalize(glm::cross(m_Direction, m_WorldUp));
 	m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
+
 	m_ViewProj.view = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
-	m_ViewProj.projection = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
+	m_ViewProj.perspective = glm::perspective(m_FOV, m_Aspect, m_zNear, m_zFar);
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	printf("\n");
+	//	for (int j = 0; j < 4; j++)
+	//	{
+	//		printf("%f\t", m_ViewProj.perspective[j][i]);
+	//		//printf("\nm[%d][%d] = %f", i, j, m[i][j]);
+	//	}
+	//}
 	//printf("\nPosition = <%f, %f, %f>", m_Position.x, m_Position.y, m_Position.z);
+}
+
+void PerspectiveCamera::updateAspect(float aspect)
+{
+	m_Aspect = aspect;
 }

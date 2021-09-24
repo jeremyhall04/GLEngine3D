@@ -100,17 +100,17 @@ void Window::processInput(float deltaTime)
 		glfwSetWindowShouldClose(context, true);
 
 	if (glfwGetKey(context, GLFW_KEY_W) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(FORWARD, deltaTime);
+		g_CameraPtr->processKeyboardInput(CameraMovement::FORWARD, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(BACKWARD, deltaTime);
+		g_CameraPtr->processKeyboardInput(CameraMovement::BACKWARD, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_A) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(LEFT, deltaTime);
+		g_CameraPtr->processKeyboardInput(CameraMovement::LEFT, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_D) == GLFW_PRESS)
- 		g_CameraPtr->processKeyboardInput(RIGHT, deltaTime);
+ 		g_CameraPtr->processKeyboardInput(CameraMovement::RIGHT, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(UP, deltaTime);
+		g_CameraPtr->processKeyboardInput(CameraMovement::UP, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(DOWN, deltaTime);
+		g_CameraPtr->processKeyboardInput(CameraMovement::DOWN, deltaTime);
 
 	if (glfwGetKey(context, GLFW_KEY_O) == GLFW_PRESS && !wasPressed)
 	{
@@ -130,6 +130,7 @@ void Window::getMousePos(double& x, double& y)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	g_CameraPtr->updateAspect((float)width / (float)height);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -156,15 +157,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(FORWARD, 0.0f);
+		g_CameraPtr->processKeyboardInput(CameraMovement::FORWARD, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(BACKWARD, 0.0f);
+		g_CameraPtr->processKeyboardInput(CameraMovement::BACKWARD, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(LEFT, 0.0f);
+		g_CameraPtr->processKeyboardInput(CameraMovement::LEFT, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(RIGHT, 0.0f);
+		g_CameraPtr->processKeyboardInput(CameraMovement::RIGHT, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(UP, 0.0f);
+		g_CameraPtr->processKeyboardInput(CameraMovement::UP, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		g_CameraPtr->processKeyboardInput(DOWN, 0.0f);
+		g_CameraPtr->processKeyboardInput(CameraMovement::DOWN, 0.0f);
 }

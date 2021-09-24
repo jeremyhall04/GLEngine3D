@@ -9,7 +9,7 @@ const float m_MouseSensitivity = 0.1f;
 static bool m_FirstMouse = true;
 static float m_MouseLastX, m_MouseLastY;
 	
-enum CameraMovement {
+enum class CameraMovement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
@@ -24,7 +24,7 @@ enum CameraType
 };
 
 struct ViewProjectionMatrices {
-	glm::mat4 view, projection;
+	glm::mat4 view, perspective;
 };
 
 //-----------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ public:
 	//glm::mat4 getViewMatrix() { return glm::lookAt(m_Position, m_Position + m_Direction, m_Up); };
 	virtual void update() {}
 	glm::mat4 getViewMatrix() { return m_ViewProj.view; };
-	glm::mat4 getProjectionMatrix() { return m_ViewProj.projection; };
+	glm::mat4 getProjectionMatrix() { return m_ViewProj.perspective; };
 	const glm::vec3& getPosition() { return m_Position; };
 	const glm::vec3& getDirection() { return m_Direction; };
 	const glm::vec3& getRight() { return m_Right; };
@@ -86,10 +86,10 @@ public:
 
 	void processKeyboardInput(GLFWwindow* window, float deltaTime);
 	void processKeyboardInput(CameraMovement direction, float deltaTime);
-	void processMouseMovement(GLFWwindow* window, double xpos, double ypos);
 	void processMouseMovement(float xOffset, float yOffset);
 	void update() override;
 	const glm::vec4& getPerspectiveParams() const { return glm::vec4(m_FOV, m_Aspect, m_zNear, m_zFar); };
+	void updateAspect(float aspect);
 };
 
 #endif // !CAMERA_H

@@ -3,15 +3,21 @@
 #include "graphics/window/window.h"
 #include "graphics/shader.h"
 
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
+
 #include "blocks/block.h"
 #include "blocks/chunk.h"
 #include "graphics/renderable3D.h"
 #include "graphics/renderer3d.h"
 #include "graphics/texture/texture.h"
+#include "graphics/frustum/frustum.h"
+
 
 #include "utils/camera.h"
 #include "utils/direction.h"
 #include "utils/timer.h"
+
 
 float orth_w = 16.0f * 2.0f, orth_h = 9.0f * 2.0f;
 
@@ -31,13 +37,14 @@ int main()
 	/*glm::vec3 camerapos = glm::vec3(0.0f, 0.0f, -10.0f);
 	glm::vec3 cameratarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameradirection = glm::normalize(camerapos - cameratarget);
-	glm::vec3 cameradirection = glm::normalize(cameratarget - camerapos);
+	//glm::vec3 cameradirection = glm::normalize(cameratarget - camerapos);
 	glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 cameraright = glm::normalize(glm::cross(worldup, cameradirection));
 	glm::vec3 cameraup = glm::cross(cameradirection, cameraright);
 
 	glm::mat4 ortho_projmatrix = glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -100.0f, 100.0f);
 	glm::mat4 perspective_projmatrix = glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.01f, 100.0f);
+
 	glm::mat4 viewmatrix = glm::lookAt(camerapos, cameratarget, cameraup);
 	glm::mat4 viewmatrix = glm::lookAt(camerapos, camerapos + cameradirection, cameraup);
 
@@ -45,27 +52,31 @@ int main()
 	shader->setuniformmat4("pr_matrix", perspective_projmatrix);
 	shader->setuniformmat4("vw_matrix", viewmatrix);*/
 
-	g_CameraPtr = new PerspectiveCamera(0, 2.0f, 10.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
+	g_CameraPtr = new PerspectiveCamera(0, 2.0f, 10.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));	// external in window.h
 
-	//glm::mat4 m(glm::vec4(3, 2, 1, 4), glm::vec4(7, 4, 6, 6), glm::vec4(3, 3, 2, 1), glm::vec4(6, 6, 1, 0));
-	//glm::vec4 v(3, 4, 3, 4);
-	//glm::vec4 mv = v * m;
-	//printf("\nv * m = \n%f\n%f\n%f\n%f\n\n", mv[0], mv[1], mv[2], mv[3]);
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	printf("\n");
-	//	for (int j = 0; j < 4; j++)
-	//	{
-	//		printf("%d\t", (int)m[i][j]);
-	//		//printf("\nm[%d][%d] = %f", i, j, m[i][j]);
-	//	}
-	//}
+	printf("\nCamera pos = <%f, %f, %f>", g_CameraPtr->getPosition().x, g_CameraPtr->getPosition().y, g_CameraPtr->getPosition().z);
+	printf("\nCamera dir = <%f, %f, %f>", g_CameraPtr->getDirection().x, g_CameraPtr->getDirection().y, g_CameraPtr->getDirection().z);
+	/*glm::mat4 m(glm::vec4(3, 2, 1, 4), glm::vec4(7, 4, 6, 6), glm::vec4(3, 3, 2, 1), glm::vec4(6, 6, 1, 0));
+	glm::vec4 v(3, 4, 3, 4);
+	glm::vec4 mv = v * m;
+	printf("\nv * m = \n%f\n%f\n%f\n%f\n\n", mv[0], mv[1], mv[2], mv[3]);
+	for (int i = 0; i < 4; i++)
+	{
+		printf("\n");
+		for (int j = 0; j < 4; j++)
+		{
+			printf("%d\t", (int)m[i][j]);
+			//printf("\nm[%d][%d] = %f", i, j, m[i][j]);
+		}
+	}
 
-	//printf("\nm[4][1] = %d", (int)m[3][0]);
-	//printf("\nm[3][4] = %d", (int)m[2][3]);
+	printf("\nm[4][1] = %d", (int)m[3][0]);
+	printf("\nm[3][4] = %d", (int)m[2][3]);*/
 
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
+	Frustum frustum(g_CameraPtr);
+
 	/*Shader* shader2D = new Shader("res/shaders/quad.vert", "res/shaders/quad.frag");
 
 	float quadVertices[] = {
@@ -98,8 +109,15 @@ int main()
 	Block* block2 = new Block(0, 1, 1, 1, BlockType::Stone);
 	Block* block3 = new Block(2, 3, 2, 1, BlockType::Grass);
 	
-	Chunk chunk(0.0f, 0.0f, 0.0f);
-	chunk.generateChunk(BlockType::Stone);
+	const int nBlocks = 4;
+	Block* blocks[nBlocks];
+	blocks[0] = block;
+	blocks[1] = block1;
+	blocks[2] = block2;
+	blocks[3] = block3;
+
+	//Chunk chunk(0.0f, 0.0f, 0.0f);
+	//chunk.generateChunk(BlockType::Stone);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -129,13 +147,16 @@ int main()
 	
 		// Renderer
 		renderer.begin();
-
-		renderer.submit(block);	// grass
-		renderer.submit(block1);	// default
-		renderer.submit(block2);
-		renderer.submit(block3);
-
-		renderer.addChunkToRender(&chunk);
+		int count = 0;
+		for (int i = 0; i < nBlocks; i++)
+		{
+			if (frustum.containsBlock(blocks[i]))
+			{
+				renderer.submit(blocks[i]);	// grass
+				count++;
+			}
+		}
+		//renderer.addChunkToRender(&chunk);
 
 		renderer.end();
 		renderer.flush();
@@ -143,8 +164,9 @@ int main()
 		window.update();
 
 		frames++;
-		if (time.elapsed() - timer > 1.0f)
+		if (time.elapsed() - timer > 0.5f)
 		{
+			//printf("\nrendering %d of %d blocks", count, nBlocks);
 			timer += 1.0f;
 			printf("\n%d fps", frames);
 			frames = 0;
