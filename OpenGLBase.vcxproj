@@ -172,6 +172,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\utils\camera.cpp" />
     <ClCompile Include="src\utils\direction.cpp" />
+    <ClCompile Include="src\world\world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h" />
@@ -196,6 +197,8 @@
     <ClInclude Include="src\math\math_funcs.h" />
     <ClInclude Include="src\utils\timer.h" />
     <ClInclude Include="src\utils\direction.h" />
+    <ClInclude Include="src\world\heightmap.h" />
+    <ClInclude Include="src\world\world.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.frag" />

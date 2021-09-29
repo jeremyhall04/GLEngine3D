@@ -54,7 +54,7 @@ const GLfloat BLOCK_VERTICES[3 * 6 * 6] = {
 	0, 0, 0,
 	1, 0, 1,
 	0, 0, 0,
-	1, 0, 0,
+	1, 0, 0
 };
 
 const GLfloat BLOCK_UV[6 * 12] = {
@@ -179,8 +179,18 @@ const GLushort BLOCK_INDICES[36] = {
 //	0, 1,
 //};
 
+enum class FaceDirection
+{
+	NORTH,
+	SOUTH,
+	EAST,
+	WEST,
+	UP,
+	DOWN
+};
+
 enum class BlockType {
-	_Default = 0,
+	Air = 0,
 	Dirt = 1,
 	Grass = 2,
 	Stone = 3
@@ -197,6 +207,10 @@ struct VertexData3D
 
 class Renderable3D
 {
+public:
+	bool isActive = true;
+	bool renderFace[6];
+
 private:
 	glm::vec3 m_Position;
 	glm::vec3 m_Size;
@@ -204,11 +218,9 @@ private:
 	BlockType m_TypeID;
 
 public:
-	GLboolean isActive = true;
 	Renderable3D()
 	{
 	};
-
 	Renderable3D(glm::vec3 position, glm::vec3 size, glm::vec4 color, BlockType typeID)
 		: m_Position(position), m_Size(size), m_Color(color), m_TypeID(typeID)
 	{
@@ -219,6 +231,7 @@ public:
 	inline const glm::vec3 getSize()	 const { return m_Size; };
 	inline const glm::vec4 getColor()	 const { return m_Color; };
 	inline const GLuint getTIDfromBlockType() const { return (GLuint)m_TypeID; };
+	//virtual void setFacesToRender(bool NX, bool PX, bool NY, bool PY, bool NZ, bool PZ) = 0;
 	//inline const int getTID()		 const { return m_Texture ? m_Texture->getID() : 0; };
 };
 

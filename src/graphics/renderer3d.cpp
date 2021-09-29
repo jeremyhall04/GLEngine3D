@@ -1,5 +1,6 @@
 #include "renderer3d.h"
 #include "../blocks/chunk.h"
+#include "../world/world.h"
 #include <iostream>
 
 Renderer3D::Renderer3D()
@@ -58,7 +59,7 @@ void Renderer3D::init()
 	m_IBO = new IndexBuffer(indices, REN3D_MAX_INDICES);
 	delete[] indices;*/
 
-	m_IBO = new IndexBuffer(allocate108BlockIndices(), MAX_INDICES);
+	//m_IBO = new IndexBuffer(allocate108BlockIndices(), MAX_INDICES);
 	glBindVertexArray(0);
 }
 
@@ -212,17 +213,23 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	//	m_TextureSlotIndex++;
 	//}
 
+	int faceCount = 0;
 	for (int i = 0; i < 36; i++)
 	{
+		if ((i == 6) || (i == 12) || (i == 18) || (i == 24) || (i == 30) || (i == 36))
+			faceCount++;
+		if (renderable->renderFace[faceCount] == false)
+			continue;
 		const float* vertex = &BLOCK_VERTICES[i * 3];
 		const float* normal = &BLOCK_NORMALS[i * 3];
 		const float* uv = &BLOCK_UV[i * 2];
 		m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
 		m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
-		m_VertexBuffer->uv = glm::vec2(uv[0], uv[1]);
-		m_VertexBuffer->tid = blockTexID;/*renderable->getTextureIDfromTypeID();*/
+		m_VertexBuffer->uv = glm::vec3(uv[0], uv[1], blockTexID);
+		m_VertexBuffer->tid = blockTexID;
 		m_VertexBuffer->color = c;
 		m_VertexBuffer++;
+		m_IndexCount++;
 	}
 
 	//std::vector<int>::iterator it = std::find(m_TextureIndices.begin(), m_TextureIndices.end(), renderable->getTID());
@@ -232,23 +239,44 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	//	m_TextureIndices.erase(it);
 	//}
 
-	m_IndexCount += 36;
+	//m_IndexCount += 36;
 }
 
-void Renderer3D::addChunkToRender(Chunk* chunk)
+void Renderer3D::submitChunk(Chunk* chunk)
 {
-	frustumCull(chunk);
-	if (chunk->isRender)
+	//frustumCull(chunk);
+
+	for (int i = 0; i < CHUNK_SIZE; i++)
+		for (int j = 0; j < CHUNK_SIZE; j++)
+			for (int k = 0; k < CHUNK_SIZE; k++)
+			{
+				//occlusionCull(chunk, glm::vec3(i, j, k));
+				//if (chunk->chunkBlocks[i][j][k].isActive())
+					//submit(&chunk->chunkBlocks[i][j][k]);
+				if (chunk->get_block_from_pos_in_chunk(i, j, k)->isActive)
+					submit(chunk->get_block_from_pos_in_chunk(i, j, k));
+			}
+}
+
+void Renderer3D::submitChunkData(Chunk* chunks)
+{
+	for (int i = 0; i < CHUNK_SIZE; i++)
+		for (int j = 0; j < CHUNK_SIZE; j++)
+			for (int k = 0; k < CHUNK_SIZE; k++)
+				submit(chunks->data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]);
+}
+
+void Renderer3D::submitScene(World* world)
+{
+	for (int i = 0; i < WORLD_WIDTH; i++)
 	{
-		printf("\nchunk is rendering");
-		for (int j = 0; j < CHUNK_SIZE_MAX; j++)
-			for (int k = 0; k < CHUNK_SIZE_MAX; k++)
-				for (int i = 0; i < CHUNK_SIZE_MAX; i++)
-				{
-					//occlusionCull(chunk, glm::vec3(i, j, k));
-					if (chunk->chunkBlocks[i][j][k].isActive())
-						submit(&chunk->chunkBlocks[i][j][k]);
-				}
+		for (int j = 0; j < WORLD_HEIGHT; j++)
+		{
+			for (int k = 0; k < WORLD_DEPTH; k++)
+			{
+				submitChunk(world->chunks[i][j][k]);
+			}
+		}
 	}
 }
 
@@ -307,11 +335,12 @@ void Renderer3D::flush()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 
 	glBindVertexArray(m_VAO);
-	m_IBO->bind();
+	//m_IBO->bind();
 
-	glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, NULL);
+	//glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, NULL);
+	glDrawArrays(GL_TRIANGLES, 0, m_IndexCount);
 
-	m_IBO->unbind();
+	//m_IBO->unbind();
 	glBindVertexArray(0);
 
 	m_IndexCount = 0;

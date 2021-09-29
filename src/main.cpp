@@ -6,13 +6,13 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 
-#include "blocks/block.h"
+//#include "blocks/block.h"
 #include "blocks/chunk.h"
 #include "graphics/renderable3D.h"
 #include "graphics/renderer3d.h"
 #include "graphics/texture/texture.h"
 #include "graphics/frustum/frustum.h"
-
+#include "world/world.h"
 
 #include "utils/camera.h"
 #include "utils/direction.h"
@@ -52,29 +52,16 @@ int main()
 	shader->setuniformmat4("pr_matrix", perspective_projmatrix);
 	shader->setuniformmat4("vw_matrix", viewmatrix);*/
 
-	g_CameraPtr = new PerspectiveCamera(0, 2.0f, 10.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));	// external in window.h
+	int i = 6;
 
-	printf("\nCamera pos = <%f, %f, %f>", g_CameraPtr->getPosition().x, g_CameraPtr->getPosition().y, g_CameraPtr->getPosition().z);
-	printf("\nCamera dir = <%f, %f, %f>", g_CameraPtr->getDirection().x, g_CameraPtr->getDirection().y, g_CameraPtr->getDirection().z);
-	/*glm::mat4 m(glm::vec4(3, 2, 1, 4), glm::vec4(7, 4, 6, 6), glm::vec4(3, 3, 2, 1), glm::vec4(6, 6, 1, 0));
-	glm::vec4 v(3, 4, 3, 4);
-	glm::vec4 mv = v * m;
-	printf("\nv * m = \n%f\n%f\n%f\n%f\n\n", mv[0], mv[1], mv[2], mv[3]);
-	for (int i = 0; i < 4; i++)
-	{
-		printf("\n");
-		for (int j = 0; j < 4; j++)
-		{
-			printf("%d\t", (int)m[i][j]);
-			//printf("\nm[%d][%d] = %f", i, j, m[i][j]);
-		}
-	}
+	g_CameraPtr = new PerspectiveCamera(0.0f, 2.0f, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
+	glm::vec3 ray = g_CameraPtr->getDirection();
 
-	printf("\nm[4][1] = %d", (int)m[3][0]);
-	printf("\nm[3][4] = %d", (int)m[2][3]);*/
-
+	World world;
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
+	shader->enable();
+
 	Frustum frustum(g_CameraPtr);
 
 	/*Shader* shader2D = new Shader("res/shaders/quad.vert", "res/shaders/quad.frag");
@@ -103,26 +90,12 @@ int main()
 	Texture quadTex("res/images/grass.png");
 	//shader2D->setUniform1i("quadTexture", quadTex.getID());*/
 
-	shader->enable();
-	Block* block = new Block(0, 0, 0, 1, BlockType::Dirt);
-	Block* block1 = new Block(-1, 0, 0, 1, BlockType::_Default);
-	Block* block2 = new Block(0, 1, 1, 1, BlockType::Stone);
-	Block* block3 = new Block(2, 3, 2, 1, BlockType::Grass);
-	
-	const int nBlocks = 4;
-	Block* blocks[nBlocks];
-	blocks[0] = block;
-	blocks[1] = block1;
-	blocks[2] = block2;
-	blocks[3] = block3;
-
-	//Chunk chunk(0.0f, 0.0f, 0.0f);
-	//chunk.generateChunk(BlockType::Stone);
+	//world.chunks[0][0][0]->data[to_data_index(0, 0, 0)]->isActive = false;
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	/*glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);*/
 
 	shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 	shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
@@ -137,6 +110,7 @@ int main()
 		lastFrame = currentFrame;
 
 		window.clear();
+		ray = g_CameraPtr->getDirection();
 		window.processInput(deltaTime);
 			
 		shader->enable();
@@ -147,15 +121,9 @@ int main()
 	
 		// Renderer
 		renderer.begin();
-		int count = 0;
-		for (int i = 0; i < nBlocks; i++)
-		{
-			if (frustum.containsBlock(blocks[i]))
-			{
-				renderer.submit(blocks[i]);	// grass
-				count++;
-			}
-		}
+
+		renderer.submitScene(&world);
+
 		//renderer.addChunkToRender(&chunk);
 
 		renderer.end();
@@ -164,7 +132,7 @@ int main()
 		window.update();
 
 		frames++;
-		if (time.elapsed() - timer > 0.5f)
+		if (time.elapsed() - timer > 1.0f)
 		{
 			//printf("\nrendering %d of %d blocks", count, nBlocks);
 			timer += 1.0f;

@@ -26,6 +26,7 @@
 
 class Block;
 class Chunk;
+class World;
 
 class Renderer3D
 {
@@ -52,13 +53,16 @@ private:
 	void init();
 	GLuint* allocateBlockIndices();
 	GLuint* allocate108BlockIndices();
+	bool compareBlockFaces(Block* b);
 
 public:
 	void generateTextures();
 	VertexData3D* getVertexBuffer() { return m_VertexBuffer; };
 	void begin();
 	void submit(const Renderable3D* renderable);
-	void addChunkToRender(Chunk* chunk);
+	void submitChunk(Chunk* chunk);
+	void submitChunkData(Chunk* data);
+	void submitScene(World* world);
 	void end();
 	void flush();
 };

@@ -16,10 +16,14 @@ struct ChunkMeshBuffer
 
 class ChunkMesh
 {
+public:
 	Chunk* chunk;
 	ChunkMeshBuffer buffers;
 
 	Renderer3D renderer;
+
+	ChunkMesh();
+	~ChunkMesh();
 };
 
 #endif // !CHUNK_MESH_H

@@ -1,169 +1,248 @@
 #include "chunk.h"
 #include "../graphics/window/window.h"
+#include "../world/world.h"
 
-Chunk::Chunk(float offsetX, float offsetY, float offsetZ)
+Chunk::Chunk()
 {
-	offset.x = offsetX;
-	offset.y = offsetY;
-	offset.z = offsetZ;
+}
+
+// Initialize a chunk's **data
+Chunk::Chunk(World* world, int i, int j, int k)
+{
+	this->world = world;
+	data = new Block * [CHUNK_SIZE_CUBED];
+	chunkX = i * CHUNK_SIZE;
+	chunkY = j * CHUNK_SIZE;
+	chunkZ = k * CHUNK_SIZE;
+	generateChunkData();
 }
 
 Chunk::~Chunk()
 {
-	for (int i = 0; i < CHUNK_SIZE_MAX; i++) 
+	for (int i = 0; i < CHUNK_SIZE; i++)
+		for (int j = 0; j < CHUNK_SIZE; j++)
+			for (int k = 0; k < CHUNK_SIZE; k++)
+				delete get_block_from_pos_in_chunk(i, j, k);
+	if (data != NULL)
+		delete[] data;
+}
+
+void Chunk::generateChunkData()
+{
+	BlockType type;
+	int bX = chunkX, bY = chunkY, bZ = chunkZ;
+	for (int i = 0; i < CHUNK_SIZE; i++)
 	{
-		for (int j = 0; j < CHUNK_SIZE_MAX; j++) 
+		for (int j = 0; j < CHUNK_SIZE; j++)
 		{
-			delete[] chunkBlocks[i][j];
-		}
-		delete[] chunkBlocks[i];
-	}
-	delete[] chunkBlocks;
-}
-
-void Chunk::generateChunk(BlockType type)
-{
-	float bX = this->offset.x, bY = this->offset.y, bZ = this->offset.z;
-	float blockSize = 1.0f;
-	
-	chunkBlocks = new Block * *[CHUNK_SIZE_MAX];
-	for (int i = 0; i < CHUNK_SIZE_MAX; i++) {
-		chunkBlocks[i] = new Block * [CHUNK_SIZE_MAX];
-		for (int j = 0; j < CHUNK_SIZE_MAX; j++) {
-			chunkBlocks[i][j] = new Block[CHUNK_SIZE_MAX];
-		}
-	}
-
-	for (int j = 0; j < CHUNK_SIZE_MAX; j++) {
-		bY = j * blockSize;
-		for (int k = 0; k < CHUNK_SIZE_MAX; k++) {
-			bZ = k * blockSize;
-			for (int i = 0; i < CHUNK_SIZE_MAX; i++) {
-				bX = i * blockSize;
-				Block* newCube = new Block(bX, bY, -bZ, blockSize, type);
-				chunkBlocks[i][j][k] = *newCube;
-			}
-		}
-	}
-	isGenerated = true;
-	blockCount = CHUNK_VOLUME;
-}
-
-void occlusionCull(Chunk* chunk, glm::vec3 position)
-{
-	glm::vec3 camDir = g_CameraPtr->getDirection();
-	glm::vec3 camPos = g_CameraPtr->getPosition();
-	glm::mat4 projection = g_CameraPtr->getProjectionMatrix();
-	glm::mat4 view = g_CameraPtr->getViewMatrix();
-}
-
-void frustumCull(Chunk* chunk)
-{
-	const glm::vec4 params = g_CameraPtr->getPerspectiveParams();
-	glm::mat4 P = g_CameraPtr->getProjectionMatrix();
-	glm::vec3 camDir = g_CameraPtr->getDirection();
-	glm::vec3 camPos = g_CameraPtr->getPosition();
-	glm::vec3 camUp = g_CameraPtr->getUp();
-	glm::vec3 camRight = g_CameraPtr->getRight();
-	float fov = params.x;
-	float aspect = params.y;
-	float zNear = params.z;
-	float zFar = params.w;
-	float hNear = 2.0f * tan(fov / 2.0f) * zNear;
-	float wNear = hNear * aspect;
-	float hFar = 2.0f * tan(fov / 2.0f) * zFar;
-	float wFar = hFar * aspect;
-
-	glm::vec3 fc = camPos + camDir * zFar;
-	glm::vec3 ftl = fc + (camUp * hFar / 2.0f) - (camRight * wFar / 2.0f);
-	glm::vec3 ftr = fc + (camUp * hFar / 2.0f) + (camRight * wFar / 2.0f);
-	glm::vec3 fbl = fc - (camUp * hFar / 2.0f) - (camRight * wFar / 2.0f);
-	glm::vec3 fbr = fc - (camUp * hFar / 2.0f) + (camRight * wFar / 2.0f);
-
-	glm::vec3 nc = camPos + camDir * zNear;
-	glm::vec3 ntl = fc + (camUp * hNear / 2.0f) - (camRight * wNear / 2.0f);
-	glm::vec3 ntr = fc + (camUp * hNear / 2.0f) + (camRight * wNear / 2.0f);
-	glm::vec3 nbl = fc - (camUp * hNear / 2.0f) - (camRight * wNear / 2.0f);
-	glm::vec3 nbr = fc - (camUp * hNear / 2.0f) + (camRight * wNear / 2.0f);
-
-	glm::vec3 a = (nc + camRight * wNear / 2.0f) - camPos;
-	a = glm::normalize(a);
-	glm::vec3 normalRight = camUp * a;
-
-	GLuint count = 0;
-	for (GLuint i = 0; i < CHUNK_SIZE_X; i++)
-	{
-		for (GLuint j = 0; j < CHUNK_SIZE_Y; j++)
-		{
-			for (GLuint k = 0; k < CHUNK_SIZE_Z; k++)
+			for (int k = 0; k < CHUNK_SIZE; k++)
 			{
-				bool inside = false;
-				Block* block = get_block_from_position(chunk, glm::vec3(i, j, k));
-				glm::vec4 normalizedV = glm::normalize(glm::vec4(block->getPosition(), 1.0f));
-				float x = normalizedV.x;
-				float y = normalizedV.y;
-				float z = normalizedV.z;
-
-				glm::vec3 vertices[8] = {
-					glm::vec3(x,						y,							z),
-					glm::vec3(x,						y + block->getSize().y,		z),
-					glm::vec3(x + block->getSize().x,	y + block->getSize().y,		z),
-					glm::vec3(x + block->getSize().x,	y,							z),
-					glm::vec3(x,						y,							z + block->getSize().z),
-					glm::vec3(x,						y + block->getSize().y,		z + block->getSize().z),
-					glm::vec3(x + block->getSize().x,	y + block->getSize().y,		z + block->getSize().z),
-					glm::vec3(x + block->getSize().x,	y,							z + block->getSize().z)
-				};
-
-				for (GLuint v = 0; v < 8; v++)
-				{
-					bool isX = false, isY = false, isZ = false;
-
-					isX = (-1.0f < vertices[v].x && vertices[v].x < 1.0f);	// true if inside
-					isY = (-1.0f < vertices[v].y && vertices[v].y < 1.0f);
-					isZ = (-1.0f < vertices[v].z && vertices[v].z < 1.0f);
-					inside = isX || isY || isZ;	// if any point is inside, render the block
-				}
-				block->setActive(inside);
-				if (inside)
-					count++;
+				int access = to_data_index(i, j, k);
+				int height = to_global_coord(i, j, k).y;
+				if (height < -2)
+					type = BlockType::Stone;
+				else
+					type = BlockType::Grass;
+				data[access] = new Block((float)(chunkX + i), (float)(chunkY + j), (float)(chunkZ + k), 1.0f, type);
 			}
 		}
 	}
-	if (count == 0)
-		chunk->isRender = false;
+	updateChunkBlockFaces(this);
 }
 
-Block* get_block_from_position(const Chunk* chunk, const glm::vec3& position)
+// Returns the block in the chunk at the zero-based position (i, j, k)
+Block* Chunk::get_block_from_pos_in_chunk(int i, int j, int k)
 {
-	int x = (int)position.x;
-	int y = (int)position.y;
-	int z = (int)position.z;
-
-	return &chunk->chunkBlocks[x][y][z];
+	i = INDEX_INBOUNDS(i);
+	j = INDEX_INBOUNDS(j);
+	k = INDEX_INBOUNDS(k);
+	return data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED];
 }
 
-void generate_chunk(Chunk* chunk)
+const glm::vec3& Chunk::to_global_coord(int i, int j, int k)
 {
-	//for (int i = 0; i < CHUNK_VOLUME; i++)
-	//{
-	//	chunk->chunkBlocks.blocks
-	//}
-	//const glm::vec3 position = chunk->;
-	//const glm::vec3 size = chunk->getSize();
-	//const glm::vec4 color = chunk->getColor();
-	//const GLuint blockTexID = chunk->getTIDfromBlockType();
-
-	//for (int i = 0; i < 36; i++)
-	//{
-	//	const float* vertex = &BLOCK_VERTICES[i * 3];
-	//	const float* normal = &BLOCK_NORMALS[i * 3];
-	//	const float* uv = &BLOCK_UV[i * 2];
-	//	m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
-	//	m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
-	//	m_VertexBuffer->uv = glm::vec2(uv[0], uv[1]);
-	//	m_VertexBuffer->tid = blockTexID;/*renderable->getTextureIDfromTypeID();*/
-	//	m_VertexBuffer->color = c;
-	//	m_VertexBuffer++;
-	//}
+	return glm::vec3(chunkX + i, chunkY + j, chunkZ - k);
 }
+
+int to_data_index(int i, int j, int k)
+{
+	i = INDEX_INBOUNDS(i);
+	j = INDEX_INBOUNDS(j);
+	k = INDEX_INBOUNDS(k);
+	int access = i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED;
+	return access;
+}
+
+
+
+void updateChunkBlockFaces(Chunk* chunk)
+{
+	// tell the block which faces are hidden
+	bool bDefault = true;
+	for (int i = 0; i < CHUNK_SIZE; i++)
+	{
+		for (int j = 0; j < CHUNK_SIZE; j++)
+		{
+			for (int k = 0; k < CHUNK_SIZE; k++)
+			{
+				int access = to_data_index(i, j, k);
+				bool Xn = bDefault;
+				bool Xp = bDefault;
+				bool Yn = bDefault;
+				bool Yp = bDefault;
+				bool Zn = bDefault;
+				bool Zp = bDefault;
+				if (i > 0)
+				{
+					Xn = !chunk->data[to_data_index(i - 1, j, k)]->isActive;
+				}
+				if (i < CHUNK_SIZE - 1)
+				{
+					Xp = !chunk->data[to_data_index(i + 1, j, k)]->isActive;
+				}
+				if (j > 0)
+				{
+					Yn = !chunk->data[to_data_index(i, j - 1, k)]->isActive;
+				}
+				if (j < CHUNK_SIZE - 1)
+				{
+					Yp = !chunk->data[to_data_index(i, j + 1, k)]->isActive;
+				}
+				if (k > 0)
+				{
+					Zn = !chunk->data[to_data_index(i, j, k - 1)]->isActive;
+				}
+				if (k < CHUNK_SIZE - 1)
+				{
+					Zp = !chunk->data[to_data_index(i, j, k + 1)]->isActive;
+				}
+				chunk->data[access]->setFacesToRender(Xn, Xp, Yn, Yp, Zn, Zp);
+			}
+		}
+	}
+}
+
+//void updateChunkFaces(World* world)
+//{
+//	// tell the block which faces are hidden
+//	bool bDefault = true;
+//	for (int i = 0; i < CHUNK_SIZE; i++)
+//	{
+//		for (int j = 0; j < CHUNK_SIZE; j++)
+//		{
+//			for (int k = 0; k < CHUNK_SIZE; k++)
+//			{
+//				int access = to_data_index(i, j, k);
+//				bool Xn = bDefault;
+//				bool Xp = bDefault;
+//				bool Yn = bDefault;
+//				bool Yp = bDefault;
+//				bool Zn = bDefault;
+//				bool Zp = bDefault;
+//				if (i > 0)
+//				{
+//					Xn = !chunk->data[to_data_index(i - 1, j, k)]->isActive;
+//				}
+//				if (i < CHUNK_SIZE - 1)
+//				{
+//					Xp = !chunk->data[to_data_index(i + 1, j, k)]->isActive;
+//				}
+//				if (j > 0)
+//				{
+//					Yn = !chunk->data[to_data_index(i, j - 1, k)]->isActive;
+//				}
+//				if (j < CHUNK_SIZE - 1)
+//				{
+//					Yp = !chunk->data[to_data_index(i, j + 1, k)]->isActive;
+//				}
+//				if (k > 0)
+//				{
+//					Zn = !chunk->data[to_data_index(i, j, k - 1)]->isActive;
+//				}
+//				if (k < CHUNK_SIZE - 1)
+//				{
+//					Zp = !chunk->data[to_data_index(i, j, k + 1)]->isActive;
+//				}
+//				chunk->data[access]->setFacesToRender(Xn, Xp, Yn, Yp, Zn, Zp);
+//			}
+//		}
+//	}
+//}
+
+//void Chunk::generateMesh(ChunkHelper helper)
+//{
+//	cXN = &(world->chunks[chunkX - 1][chunkY][chunkZ]);
+//	cXP = &(world->chunks[chunkX + 1][chunkY][chunkZ]);
+//	cYN = &(world->chunks[chunkX][chunkY - 1][chunkZ]);
+//	cYP = &(world->chunks[chunkX][chunkY + 1][chunkZ]);
+//	cZN = &(world->chunks[chunkX][chunkY][chunkZ - 1]);
+//	cZP = &(world->chunks[chunkX][chunkY][chunkZ + 1]);
+//
+//	// start at chunkpos 0,0,0
+//	// Y axis
+//	for (int j = 0; j < CHUNK_SIZE; j++)
+//	{
+//		// Z axis
+//		for (int k = 0; k < CHUNK_SIZE; k++)
+//		{
+//			// X axis
+//			for (int i = 0; i < CHUNK_SIZE; i++)
+//			{
+//				int access = i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED;
+//				Block* b = data[access];
+//				if (b->isActive())
+//					createRuns(b, i, j, k, helper, access);
+//			}
+//		}
+//	}
+//}
+
+//void Chunk::createRuns(Block* block, int i, int j, int k, ChunkHelper& helper, int access)
+//{
+//	int i1 = i + 1;
+//	int j1 = j + 1;
+//	int k1 = k + 1;
+//
+//	int length = 0;
+//	int chunkAccess = 0;
+//
+//	if (!helper.visitedXN[access])
+//	{
+//		for (int q = j; q < CHUNK_SIZE; q++)
+//		{
+//			chunkAccess = i + q * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED;
+//			//if ()
+//		}
+//	}
+//}
+//
+//bool Chunk::visibleFaceXN(int i, int j, int k)
+//{
+//	// Access directly from a neighbouring chunk
+//	bool isVisible = true;
+//	if (i < 0)
+//	{
+//		if (cXN == NULL)
+//			isVisible = true;
+//		else
+//			isVisible = cXN->data[31 + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]->isActive();
+//	}
+//	else
+//		isVisible = cXN->data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]->isActive();
+//	return isVisible;
+//} 
+//
+//bool Chunk::visibleFaceXP(int i, int j, int k)
+//{
+//	bool isVisible = true;
+//	if (i >= CHUNK_SIZE)
+//	{
+//		if (cXP == NULL)
+//			isVisible = true;
+//		else
+//			isVisible = cXN->data[0 + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]->isActive();
+//	}
+//	else
+//		isVisible = cXN->data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]->isActive();
+//	return isVisible;
+//}
