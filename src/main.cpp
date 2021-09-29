@@ -90,7 +90,7 @@ int main()
 	Texture quadTex("res/images/grass.png");
 	//shader2D->setUniform1i("quadTexture", quadTex.getID());*/
 
-	//world.chunks[0][0][0]->data[to_data_index(0, 0, 0)]->isActive = false;
+	world.chunks[0][0][0]->data[to_data_index(0, 0, 0)]->isActive = false;
 
 	glEnable(GL_DEPTH_TEST);
 	/*glEnable(GL_CULL_FACE);
@@ -112,7 +112,9 @@ int main()
 		window.clear();
 		ray = g_CameraPtr->getDirection();
 		window.processInput(deltaTime);
-			
+		
+		world.update();
+
 		shader->enable();
 		//shader->setUniform3f("viewPos", g_CameraPtr->getPosition());	// for specular lighting
 		shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());

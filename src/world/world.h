@@ -15,6 +15,8 @@ public:
 	Chunk**** chunks;
 	World();
 	~World();
+
+	void update();
 };
 
 void updateChunkFacesToRender(World* world);

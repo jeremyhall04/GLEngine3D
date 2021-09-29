@@ -33,6 +33,20 @@ World::~World()
 	delete[] chunks;
 }
 
+void World::update()
+{
+	for (int i = 0; i < WORLD_WIDTH; i++)
+	{
+		for (int j = 0; j < WORLD_HEIGHT; j++)
+		{
+			for (int k = 0; k < WORLD_DEPTH; k++)
+			{
+				updateChunkBlockFaces(chunks[i][j][k]);
+			}
+		}
+	}
+}
+
 void updateChunkFacesToRender(World* world)
 {
 	bool bDefault = true;
