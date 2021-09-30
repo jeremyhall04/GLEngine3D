@@ -7,17 +7,33 @@ World::World()
 	{
 		chunks[i] = new Chunk * * [WORLD_HEIGHT];
 		for (int j = 0; j < WORLD_HEIGHT; j++)
-		{
 			chunks[i][j] = new Chunk * [WORLD_DEPTH];
-		}
 	}
 
 	for (int i = 0; i < WORLD_WIDTH; i++)
 		for (int j = 0; j < WORLD_HEIGHT; j++)
 			for (int k = 0; k < WORLD_DEPTH; k++)
-				chunks[i][j][k] = new Chunk(this, i, j - WORLD_HEIGHT, k);
+				chunks[i][j][k] = new Chunk(i, j - WORLD_HEIGHT, k);
 
-	//updateChunkFacesToRender(this);
+	// assign references to neighbouring chunks
+	for (int i = 0; i < WORLD_WIDTH; i++)
+		for (int j = 0; j < WORLD_HEIGHT; j++)
+			for (int k = 0; k < WORLD_DEPTH; k++)
+			{
+				if (i > 0)
+					chunks[i][j][k]->cXN = chunks[i - 1][j][k];
+				if (i < WORLD_WIDTH - 1)
+					chunks[i][j][k]->cXP = chunks[i + 1][j][k];
+				if (j > 0)
+					chunks[i][j][k]->cYN = chunks[i][j - 1][k];
+				if (j < WORLD_HEIGHT - 1)
+					chunks[i][j][k]->cYP = chunks[i][j + 1][k];
+				if (k > 0)
+					chunks[i][j][k]->cZN = chunks[i][j][k - 1];
+				if (k < WORLD_WIDTH - 1)
+					chunks[i][j][k]->cZP = chunks[i][j][k + 1];
+			}
+	update();
 }
 
 World::~World()
@@ -36,56 +52,36 @@ World::~World()
 void World::update()
 {
 	for (int i = 0; i < WORLD_WIDTH; i++)
-	{
 		for (int j = 0; j < WORLD_HEIGHT; j++)
-		{
 			for (int k = 0; k < WORLD_DEPTH; k++)
-			{
 				updateChunkBlockFaces(chunks[i][j][k]);
-			}
-		}
-	}
+	updateChunkFacesToRender(this);
 }
 
 void updateChunkFacesToRender(World* world)
 {
 	bool bDefault = true;
-	for (int i = 0; i < WORLD_WIDTH; i++)
+	for (int i = 0; i < WORLD_WIDTH; i++)	// change range to -WORLD_WIDTH/2 -> WORLD_WIDTH/2
 	{
 		for (int j = 0; j < WORLD_HEIGHT; j++)
 		{
 			for (int k = 0; k < WORLD_DEPTH; k++)
 			{
-				bool Xn = bDefault;
-				bool Xp = bDefault;
-				bool Yn = bDefault;
-				bool Yp = bDefault;
-				bool Zn = bDefault;
-				bool Zp = bDefault;
-				//if (i > 0)
-				//{
-				//	Xn = world->chunks[i - i][j][k]->isEmpty;
-				//}
-				//if (i < CHUNK_SIZE - 1)
-				//{
-				//	Xp = !chunk->data[to_data_index(i + 1, j, k)]->isActive;
-				//}
-				//if (j > 0)
-				//{
-				//	Yn = !chunk->data[to_data_index(i, j - 1, k)]->isActive;
-				//}
-				//if (j < CHUNK_SIZE - 1)
-				//{
-				//	Yp = !chunk->data[to_data_index(i, j + 1, k)]->isActive;
-				//}
-				//if (k > 0)
-				//{
-				//	Zn = !chunk->data[to_data_index(i, j, k - 1)]->isActive;
-				//}
-				//if (k < CHUNK_SIZE - 1)
-				//{
-				//	Zp = !chunk->data[to_data_index(i, j, k + 1)]->isActive;
-				//}
+				Chunk* c = world->chunks[i][j][k];
+
+				// if neighbouring chunk is active, don't render face
+				if (c->cXN != NULL)
+					c->removeFaceFromRender(FaceDirection::XNeg);
+				if (c->cXP != NULL)
+					c->removeFaceFromRender(FaceDirection::XPos);
+				if (c->cYN != NULL)
+					c->removeFaceFromRender(FaceDirection::YNeg);
+				if (c->cYP != NULL)
+					c->removeFaceFromRender(FaceDirection::YPos);
+				if (c->cZN != NULL)
+					c->removeFaceFromRender(FaceDirection::ZNeg);
+				if (c->cZP != NULL)
+					c->removeFaceFromRender(FaceDirection::ZPos);
 			}
 		} 
 	}

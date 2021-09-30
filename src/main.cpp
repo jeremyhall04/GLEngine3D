@@ -54,7 +54,7 @@ int main()
 
 	int i = 6;
 
-	g_CameraPtr = new PerspectiveCamera(0.0f, 2.0f, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
+	g_CameraPtr = new PerspectiveCamera(6.0f, 2.0f, 9.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));	// external in window.h
 	glm::vec3 ray = g_CameraPtr->getDirection();
 
 	World world;
@@ -90,7 +90,16 @@ int main()
 	Texture quadTex("res/images/grass.png");
 	//shader2D->setUniform1i("quadTexture", quadTex.getID());*/
 
-	world.chunks[0][0][0]->data[to_data_index(0, 0, 0)]->isActive = false;
+	//world.chunks[1][0][1]->isEmpty = true;
+	//Chunk* c = world.chunks[1][0][0];
+
+	//for (int j = 0; j < CHUNK_SIZE; j++)
+	//{
+	//	for (int i = 0; i < CHUNK_SIZE; i++)
+	//	{
+	//		c->getBlockFromIndex(i, j, CHUNK_SIZE - 1)->renderFace[1] = false;
+	//	}
+	//}
 
 	glEnable(GL_DEPTH_TEST);
 	/*glEnable(GL_CULL_FACE);
@@ -110,10 +119,10 @@ int main()
 		lastFrame = currentFrame;
 
 		window.clear();
-		ray = g_CameraPtr->getDirection();
 		window.processInput(deltaTime);
 		
-		world.update();
+		//ray = g_CameraPtr->getDirection();
+		//world.update();
 
 		shader->enable();
 		//shader->setUniform3f("viewPos", g_CameraPtr->getPosition());	// for specular lighting
@@ -125,8 +134,6 @@ int main()
 		renderer.begin();
 
 		renderer.submitScene(&world);
-
-		//renderer.addChunkToRender(&chunk);
 
 		renderer.end();
 		renderer.flush();

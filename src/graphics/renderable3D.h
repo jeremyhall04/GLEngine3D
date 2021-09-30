@@ -181,12 +181,12 @@ const GLushort BLOCK_INDICES[36] = {
 
 enum class FaceDirection
 {
-	NORTH,
-	SOUTH,
-	EAST,
-	WEST,
-	UP,
-	DOWN
+	XNeg,
+	XPos,
+	YNeg,
+	YPos,
+	ZNeg,
+	ZPos
 };
 
 enum class BlockType {
@@ -209,6 +209,7 @@ class Renderable3D
 {
 public:
 	bool isActive = true;
+	// ZN, ZP, XP, XN, YP, YN
 	bool renderFace[6];
 
 private:
@@ -224,6 +225,8 @@ public:
 	Renderable3D(glm::vec3 position, glm::vec3 size, glm::vec4 color, BlockType typeID)
 		: m_Position(position), m_Size(size), m_Color(color), m_TypeID(typeID)
 	{
+		if (m_TypeID == BlockType::Air)
+			isActive = false;
 	}
 	virtual ~Renderable3D() {}
 

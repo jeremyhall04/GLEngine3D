@@ -13,6 +13,7 @@
 #define CHUNK_BUFFER_SIZE	CHUNK_BLOCK_SIZE * CHUNK_SIZE_CUBED
 
 #define INDEX_INBOUNDS(x) (x < CHUNK_SIZE - 1 ? x : CHUNK_SIZE - 1)
+#define CHUNK_TO_WORLD_INDEX(x) (x = x / CHUNK_SIZE)
 
 //#define chunk_position_to_index(p) (p.x * CHUNK_SIZE.x * CHUNK_SIZE.z + p.z * CHUNK_SIZE.z + p.y)
 
@@ -36,20 +37,22 @@ public:
 	Block** data;
 	int chunkX, chunkY, chunkZ;
 	bool isEmpty = false;
+	bool isLoaded = true;
 	bool isModified = false;
 	bool isGenerating = false;
+	Chunk * cXN, * cXP, * cYN, * cYP, * cZN, * cZP;
 
 private:
 	World* world;
-	//Chunk * cXN, * cXP, * cYN, * cYP, * cZN, * cZP;
 
 public:
 	Chunk();
-	Chunk(World* world, int i, int j, int k);
+	Chunk(int i, int j, int k);
 	~Chunk();
 
 	void generateChunkData();
-	Block* get_block_from_pos_in_chunk(int i, int j, int k);
+	void removeFaceFromRender(FaceDirection face);
+	Block* getBlockFromIndex(int i, int j, int k);
 private:
 	const glm::vec3& to_global_coord(int i, int j, int k);
 /*private:
@@ -61,7 +64,9 @@ private:
 };
 
 int to_data_index(int i, int j, int k);
+Block* get_block_from_index(Chunk* chunk, int i, int j, int k);
 void updateChunkBlockFaces(Chunk* chunk);
+void compareChunkInterface(Chunk* chunk, Chunk* neighbour, FaceDirection face);
 
 #endif // !CHUNK_H
 

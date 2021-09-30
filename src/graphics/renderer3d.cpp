@@ -19,8 +19,10 @@ Renderer3D::~Renderer3D()
 		delete m_Textures[i];
 	delete[] m_TextureIndices;
 
-	if (m_IBO != nullptr)
-		delete m_IBO;
+	//if (m_IBO != nullptr)
+	//	delete m_IBO;
+
+	delete shader;
 
 	glDeleteBuffers(1, &m_VBO);
 }
@@ -251,33 +253,28 @@ void Renderer3D::submitChunk(Chunk* chunk)
 			for (int k = 0; k < CHUNK_SIZE; k++)
 			{
 				//occlusionCull(chunk, glm::vec3(i, j, k));
-				//if (chunk->chunkBlocks[i][j][k].isActive())
-					//submit(&chunk->chunkBlocks[i][j][k]);
-				if (chunk->get_block_from_pos_in_chunk(i, j, k)->isActive)
-					submit(chunk->get_block_from_pos_in_chunk(i, j, k));
+				if (chunk->getBlockFromIndex(i, j, k)->isActive)
+					submit(chunk->getBlockFromIndex(i, j, k));
 			}
 }
 
-void Renderer3D::submitChunkData(Chunk* chunks)
-{
-	for (int i = 0; i < CHUNK_SIZE; i++)
-		for (int j = 0; j < CHUNK_SIZE; j++)
-			for (int k = 0; k < CHUNK_SIZE; k++)
-				submit(chunks->data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]);
-}
+//void Renderer3D::submitChunkData(Chunk* chunks)
+//{
+//	for (int i = 0; i < CHUNK_SIZE; i++)
+//		for (int j = 0; j < CHUNK_SIZE; j++)
+//			for (int k = 0; k < CHUNK_SIZE; k++)
+//				submit(chunks->data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]);
+//}
 
 void Renderer3D::submitScene(World* world)
 {
 	for (int i = 0; i < WORLD_WIDTH; i++)
-	{
 		for (int j = 0; j < WORLD_HEIGHT; j++)
-		{
 			for (int k = 0; k < WORLD_DEPTH; k++)
 			{
-				submitChunk(world->chunks[i][j][k]);
+				if (world->chunks[i][j][k]->isEmpty == false)
+					submitChunk(world->chunks[i][j][k]);
 			}
-		}
-	}
 }
 
 //void Renderer3D::submit(const Block* block)
