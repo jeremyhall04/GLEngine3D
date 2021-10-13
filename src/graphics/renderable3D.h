@@ -9,7 +9,6 @@
 #include "../graphics/buffers/vertexarray.h"
 
 #include "../graphics/texture/texture.h"
-#include "../utils/direction.h"
 
 const GLfloat BLOCK_VERTICES[3 * 6 * 6] = {
 	// south face (-z)
@@ -193,7 +192,7 @@ enum class BlockType {
 	Air = 0,
 	Dirt = 1,
 	Grass = 2,
-	Stone = 3
+	Stone = 4
 };
 
 struct VertexData3D
@@ -234,6 +233,7 @@ public:
 	inline const glm::vec3 getSize()	 const { return m_Size; };
 	inline const glm::vec4 getColor()	 const { return m_Color; };
 	inline const GLuint getTIDfromBlockType() const { return (GLuint)m_TypeID; };
+	inline const BlockType getType() const { return m_TypeID; };
 	//virtual void setFacesToRender(bool NX, bool PX, bool NY, bool PY, bool NZ, bool PZ) = 0;
 	//inline const int getTID()		 const { return m_Texture ? m_Texture->getID() : 0; };
 };

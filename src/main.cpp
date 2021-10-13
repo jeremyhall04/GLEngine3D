@@ -1,22 +1,23 @@
 #include "Header.h"
+#include <iostream>
 
 #include "graphics/window/window.h"
 #include "graphics/shader.h"
 
-#include <glm/gtx/string_cast.hpp>
-#include <iostream>
-
-//#include "blocks/block.h"
 #include "blocks/chunk.h"
 #include "graphics/renderable3D.h"
 #include "graphics/renderer3d.h"
 #include "graphics/texture/texture.h"
 #include "graphics/frustum/frustum.h"
 #include "world/world.h"
+#include "entity/player.h"
 
 #include "utils/camera.h"
-#include "utils/direction.h"
 #include "utils/timer.h"
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 
 float orth_w = 16.0f * 2.0f, orth_h = 9.0f * 2.0f;
@@ -52,12 +53,10 @@ int main()
 	shader->setuniformmat4("pr_matrix", perspective_projmatrix);
 	shader->setuniformmat4("vw_matrix", viewmatrix);*/
 
-	int i = 6;
+	g_CameraPtr = new PerspectiveCamera(0.0f, 2.0f + 16.0f, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
 
-	g_CameraPtr = new PerspectiveCamera(6.0f, 2.0f, 9.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(45.0f));	// external in window.h
-	glm::vec3 ray = g_CameraPtr->getDirection();
-
-	World world;
+	Player player(g_CameraPtr);
+	world = new World(&player);
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
 	shader->enable();
@@ -90,21 +89,10 @@ int main()
 	Texture quadTex("res/images/grass.png");
 	//shader2D->setUniform1i("quadTexture", quadTex.getID());*/
 
-	//world.chunks[1][0][1]->isEmpty = true;
-	//Chunk* c = world.chunks[1][0][0];
-
-	//for (int j = 0; j < CHUNK_SIZE; j++)
-	//{
-	//	for (int i = 0; i < CHUNK_SIZE; i++)
-	//	{
-	//		c->getBlockFromIndex(i, j, CHUNK_SIZE - 1)->renderFace[1] = false;
-	//	}
-	//}
-
 	glEnable(GL_DEPTH_TEST);
-	/*glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);*/
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 
 	shader->setUniformMat4("pr_matrix", g_CameraPtr->getProjectionMatrix());
 	shader->setUniformMat4("vw_matrix", g_CameraPtr->getViewMatrix());
@@ -114,15 +102,15 @@ int main()
 	double x = 0.0, y = 0.0;
 	while (!glfwWindowShouldClose(window.context))
 	{
-		float currentFrame = glfwGetTime();
+		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
 		window.clear();
 		window.processInput(deltaTime);
 		
-		//ray = g_CameraPtr->getDirection();
-		//world.update();
+		player.update(g_CameraPtr);
+		world->update();
 
 		shader->enable();
 		//shader->setUniform3f("viewPos", g_CameraPtr->getPosition());	// for specular lighting
@@ -133,7 +121,7 @@ int main()
 		// Renderer
 		renderer.begin();
 
-		renderer.submitScene(&world);
+		renderer.submitScene(world);
 
 		renderer.end();
 		renderer.flush();
@@ -143,13 +131,14 @@ int main()
 		frames++;
 		if (time.elapsed() - timer > 1.0f)
 		{
-			//printf("\nrendering %d of %d blocks", count, nBlocks);
+			//printf("\n<%f, %f, %f>", g_CameraPtr->getPosition().x, g_CameraPtr->getPosition().y, g_CameraPtr->getPosition().z);
 			timer += 1.0f;
 			printf("\n%d fps", frames);
 			frames = 0;
 		}
 	}
 
+	_CrtDumpMemoryLeaks();
 	delete g_CameraPtr;
 
 	return 0;

@@ -21,7 +21,7 @@ struct Plane
 	float a, b, c, d;
 	glm::vec3 normal;
 	void setNormal();
-	const glm::vec3& getNormal(bool isNormalized);
+	const glm::vec3 getNormal(bool isNormalized);
 	float getDistanceToPoint(const glm::vec4& v);
 };
 

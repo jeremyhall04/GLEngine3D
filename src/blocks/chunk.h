@@ -4,7 +4,7 @@
 #include "block.h"
 //#include "chunkmesh.h"
 
-#define CHUNK_SIZE 4
+#define CHUNK_SIZE 16
 #define CHUNK_SIZE_SQUARED (CHUNK_SIZE * CHUNK_SIZE)
 #define CHUNK_SIZE_CUBED (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)
 
@@ -18,16 +18,6 @@
 //#define chunk_position_to_index(p) (p.x * CHUNK_SIZE.x * CHUNK_SIZE.z + p.z * CHUNK_SIZE.z + p.y)
 
 class World;
-
-struct ChunkHelper
-{
-	bool visitedXN[CHUNK_SIZE_CUBED];
-	bool visitedXP[CHUNK_SIZE_CUBED];
-	bool visitedYN[CHUNK_SIZE_CUBED];
-	bool visitedYP[CHUNK_SIZE_CUBED];
-	bool visitedZN[CHUNK_SIZE_CUBED];
-	bool visitedZP[CHUNK_SIZE_CUBED];
-};
 
 class Chunk
 {
@@ -51,10 +41,12 @@ public:
 	~Chunk();
 
 	void generateChunkData();
-	void removeFaceFromRender(FaceDirection face);
+	void removeChunkFaceFromRender(FaceDirection face);
 	Block* getBlockFromIndex(int i, int j, int k);
+	Chunk* getNeighbourChunk(FaceDirection direction);
+
 private:
-	const glm::vec3& to_global_coord(int i, int j, int k);
+	const glm::vec3 to_global_coord(int i, int j, int k);
 /*private:
 	void generateMesh(ChunkHelper helper);
 	void createRuns(Block* block, int i, int j, int k, ChunkHelper& helper, int access);
@@ -63,10 +55,16 @@ private:
 	bool isDifferentBlock(int access, Block& current);*/
 };
 
+const glm::vec3 world_pos_to_chunk_block_coord(Chunk* c, const glm::vec3& pos);
+Block* world_pos_to_chunk_block(Chunk* c, const glm::vec3& pos);
 int to_data_index(int i, int j, int k);
 Block* get_block_from_index(Chunk* chunk, int i, int j, int k);
 void updateChunkBlockFaces(Chunk* chunk);
 void compareChunkInterface(Chunk* chunk, Chunk* neighbour, FaceDirection face);
+
+void updateChunkFaces(Chunk* c);
+void updateChunkFaces(Chunk* c, int blockAccess);
+void addBlockToChunkRender(Chunk* c, glm::vec3 pos, Chunk* updateList, int listCount);
 
 #endif // !CHUNK_H
 

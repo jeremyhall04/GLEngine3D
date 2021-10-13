@@ -6,8 +6,6 @@
 #include "../GLcommon.h"
 #include "../GLcommon_math.h"
 #include "renderable3D.h"
-//#include "../blocks/block.h"
-//#include "../blocks/chunk.h"
 #include "texture/texture.h"
 #include "shader.h"
 

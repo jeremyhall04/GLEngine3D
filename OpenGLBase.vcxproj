@@ -159,6 +159,8 @@
     <ClCompile Include="src\blocks\chunk.cpp" />
     <ClCompile Include="src\blocks\chunkmesh.cpp" />
     <ClCompile Include="src\blocks\grass.cpp" />
+    <ClCompile Include="src\entity\player.cpp" />
+    <ClCompile Include="src\entity\ray.cpp" />
     <ClCompile Include="src\graphics\buffers\framebuffer.cpp" />
     <ClCompile Include="src\graphics\frustum\frustum.cpp" />
     <ClCompile Include="src\graphics\renderer3d.cpp" />
@@ -171,13 +173,14 @@
     <ClCompile Include="src\graphics\window\window.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\utils\camera.cpp" />
-    <ClCompile Include="src\utils\direction.cpp" />
     <ClCompile Include="src\world\world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="src\blocks\chunk.h" />
     <ClInclude Include="src\blocks\chunkmesh.h" />
+    <ClInclude Include="src\entity\player.h" />
+    <ClInclude Include="src\entity\ray.h" />
     <ClInclude Include="src\graphics\buffers\framebuffer.h" />
     <ClInclude Include="src\graphics\frustum\frustum.h" />
     <ClInclude Include="src\graphics\texture\texture.h" />
@@ -196,7 +199,6 @@
     <ClInclude Include="src\Header.h" />
     <ClInclude Include="src\math\math_funcs.h" />
     <ClInclude Include="src\utils\timer.h" />
-    <ClInclude Include="src\utils\direction.h" />
     <ClInclude Include="src\world\heightmap.h" />
     <ClInclude Include="src\world\world.h" />
   </ItemGroup>

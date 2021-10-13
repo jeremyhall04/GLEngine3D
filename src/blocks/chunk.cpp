@@ -38,13 +38,13 @@ void Chunk::generateChunkData()
 			for (int k = 0; k < CHUNK_SIZE; k++)
 			{
 				int access = to_data_index(i, j, k);
-				int height = to_global_coord(i, j, k).y;
-				if (height < -2)
-					type = BlockType::Stone;
-				else
-					type = BlockType::Grass;
-				if (type == BlockType::Grass)
-					airCount++;
+				//int height = (int)to_global_coord(i, j, k).y;
+				//if (height < -2)
+				//	type = BlockType::Stone;
+				//else
+				type = BlockType::Grass;
+				//if (type == BlockType::Grass)
+				//	airCount++;
 				data[access] = new Block((float)(chunkX + i), (float)(chunkY + j), (float)(chunkZ + k), 1.0f, type);
 			}
 		}
@@ -55,7 +55,7 @@ void Chunk::generateChunkData()
 }
 
 // Removes the face of a chunk by unrendering 
-void Chunk::removeFaceFromRender(FaceDirection face)
+void Chunk::removeChunkFaceFromRender(FaceDirection face)
 {
 	switch (face)
 	{
@@ -101,12 +101,30 @@ Block* Chunk::getBlockFromIndex(int i, int j, int k)
 	return data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED];
 }
 
-const glm::vec3& Chunk::to_global_coord(int i, int j, int k)
+const glm::vec3 Chunk::to_global_coord(int i, int j, int k)
 {
 	return glm::vec3(chunkX + i, chunkY + j, chunkZ - k);
 }
 
+const glm::vec3 world_pos_to_chunk_block_coord(Chunk* c, const glm::vec3& pos)
+{
+	// block position within chunk c
+	int bX = (int)glm::floor(pos.x - (float)c->chunkX);
+	int bY = (int)glm::floor(pos.y - (float)c->chunkY);
+	int bZ = (int)glm::floor(pos.z - (float)c->chunkZ);
+	return glm::vec3(bX, bY, bZ);
+}
 
+Block* world_pos_to_chunk_block(Chunk* c, const glm::vec3& pos)
+{
+	glm::vec3 blockPos= world_pos_to_chunk_block_coord(c, pos);
+	return get_block_from_index(c, (int)blockPos.x, (int)blockPos.y, (int)blockPos.z);
+}
+
+Block* get_block_from_index(Chunk* chunk, int i, int j, int k)
+{
+	return chunk->data[to_data_index(i, j, k)];
+}
 
 int to_data_index(int i, int j, int k)
 {
@@ -117,25 +135,20 @@ int to_data_index(int i, int j, int k)
 	return access;
 }
 
-Block* get_block_from_index(Chunk* chunk, int i, int j, int k)
-{
-	return chunk->data[to_data_index(i, j, k)];
-}
-
 void updateChunkBlockFaces(Chunk* chunk)
 {
 	// tell the block which faces are hidden
 	bool bDefault = true;
 	int xNFaceCount = 0;
 	int xPFaceCount = 0;
+	int yNFaceCount = 0;
+	int yPFaceCount = 0;
+	int zNFaceCount = 0;
+	int zPFaceCount = 0;
 	for (int i = 0; i < CHUNK_SIZE; i++)
 	{
-		int yNFaceCount = 0;
-		int yPFaceCount = 0;
 		for (int j = 0; j < CHUNK_SIZE; j++)
 		{
-			int zNFaceCount = 0;
-			int zPFaceCount = 0;
 			for (int k = 0; k < CHUNK_SIZE; k++)
 			{
 				int access = to_data_index(i, j, k);
@@ -145,69 +158,90 @@ void updateChunkBlockFaces(Chunk* chunk)
 				bool Yp = bDefault;
 				bool Zn = bDefault;
 				bool Zp = bDefault;
-
+				Block* b;
 				if (i > 0)
 					Xn = !chunk->data[to_data_index(i - 1, j, k)]->isActive;
+				else if (i == 0 && chunk->cXN != NULL) // edge of chunk, compare with nearby chunk block
+				{
+					b = chunk->cXN->data[to_data_index(CHUNK_SIZE - 1, j, k)];
+					Xn = !chunk->cXN->data[to_data_index(CHUNK_SIZE - 1, j, k)]->isActive;
+				}
+
 				if (i < CHUNK_SIZE - 1)
 					Xp = !chunk->data[to_data_index(i + 1, j, k)]->isActive;
+				else if (i == CHUNK_SIZE - 1 && chunk->cXP != NULL)
+				{
+					b = chunk->cXP->data[to_data_index(0, j, k)];
+					Xp = !chunk->cXP->data[to_data_index(0, j, k)]->isActive;
+				}
+
 				if (j > 0)
 					Yn = !chunk->data[to_data_index(i, j - 1, k)]->isActive;
+				else if (j == 0 && chunk->cYN != NULL)
+				{
+					b = chunk->cYN->data[to_data_index(i, CHUNK_SIZE - 1, k)];
+					Yn = !chunk->cYN->data[to_data_index(i, CHUNK_SIZE - 1, k)]->isActive;
+				}
+
 				if (j < CHUNK_SIZE - 1)
 					Yp = !chunk->data[to_data_index(i, j + 1, k)]->isActive;
+				else if (j == CHUNK_SIZE - 1 && chunk->cYP != NULL)
+				{
+					b = chunk->cYP->data[to_data_index(i, 0, k)];
+					Yp = !chunk->cYP->data[to_data_index(i, 0, k)]->isActive;
+				}
+
+
 				if (k > 0)
 					Zn = !chunk->data[to_data_index(i, j, k - 1)]->isActive;
+				else if (k == 0 && chunk->cZN != NULL)
+				{
+					b = chunk->cZN->data[to_data_index(i, j, CHUNK_SIZE - 1)];
+					Zn = !chunk->cZN->data[to_data_index(i, j, CHUNK_SIZE - 1)]->isActive;
+				}
+
 				if (k < CHUNK_SIZE - 1)
 					Zp = !chunk->data[to_data_index(i, j, k + 1)]->isActive;
-				
+				else if (k == CHUNK_SIZE - 1 && chunk->cZP != NULL)
+				{
+					b = chunk->cZP->data[to_data_index(i, j, 0)];
+					Zp = !chunk->cZP->data[to_data_index(i, j, 0)]->isActive;
+				}
+
 				chunk->data[access]->setFacesToRender(Xn, Xp, Yn, Yp, Zn, Zp);
-				
-				//if (Xn)
-				//	xNFaceCount++;
-				//if (Xp)
-				//	xPFaceCount++;
-				//if (Yn)
-				//	yNFaceCount++;
-				//if (Yp)
-				//	yPFaceCount++;
-				//if (Zn)
-				//	zNFaceCount++;
-				//if (Zp)
-				//	zPFaceCount++;
 			}
 		}
 	}
 }
 
-void compareChunkInterface(Chunk* chunk, Chunk* neighbour, FaceDirection face)
+void updateChunkFaces(Chunk* c)
 {
+	// if neighbouring chunk is active, don't render face **TEMPORARY**
+	int faceCountXN = CHUNK_SIZE;
+	int faceCountXP = CHUNK_SIZE;
+	int faceCountYN = CHUNK_SIZE;
+	int faceCountYP = CHUNK_SIZE;
+	int faceCountZN = CHUNK_SIZE;
+	int faceCountZP = CHUNK_SIZE;
 
-	if (neighbour->isEmpty)	// precaution for now, since neighbour has to be != NULL
-		return;
+	// if yes, face is full so don't render the face
+	if (c->cXN != NULL)
+		c->removeChunkFaceFromRender(FaceDirection::XNeg);
+	if (c->cXP != NULL)
+		c->removeChunkFaceFromRender(FaceDirection::XPos);
+	if (c->cYN != NULL)
+		c->removeChunkFaceFromRender(FaceDirection::YNeg);
+	if (c->cYP != NULL)
+		c->removeChunkFaceFromRender(FaceDirection::YPos);
+	if (c->cZN != NULL)
+		c->removeChunkFaceFromRender(FaceDirection::ZNeg);
+	if (c->cZP != NULL) 
+		c->removeChunkFaceFromRender(FaceDirection::ZPos);
 
-	// if neighbour face is full, don't render corresponding face
-	switch (face)
-	{
-	case FaceDirection::XNeg:
-		for (int j = 0; j < CHUNK_SIZE; j++)
-		{
-			for (int k = 0; k < CHUNK_SIZE; k++)
-			{
-				if (neighbour->data[to_data_index(CHUNK_SIZE - 1, j, k)]->isActive == false)
-					chunk->data[to_data_index(0, j, k)]->renderFace[0] = true;
-			}
-		}
-		break;
-	case FaceDirection::XPos:
-		break;
-	case FaceDirection::YNeg:
-		break;
-	case FaceDirection::YPos:
-		break;
-	case FaceDirection::ZNeg:
-		break;
-	case FaceDirection::ZPos:
-		break;
-	}
+	// decide which block faces to render within chunk
+	updateChunkBlockFaces(c);
+
+	c->isModified = false;
 }
 
 //void updateChunkFaces(World* world)

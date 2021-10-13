@@ -1,8 +1,8 @@
 #include "window.h"
-
 #include <iostream>
 
 extern PerspectiveCamera* g_CameraPtr = 0;
+extern World* world = 0;
 bool isWireframe = false;
 
 Window::Window()
@@ -49,6 +49,7 @@ Window::Window(const char* windowTitle, int width, int height)
 	glfwMakeContextCurrent(context);
 	glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 	glfwSetCursorPosCallback(context, mouse_callback);
+	glfwSetMouseButtonCallback(context, mouse_button_callback);
 	glfwSetInputMode(context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);	// 0 for uncap fps
@@ -99,6 +100,7 @@ void Window::processInput(float deltaTime)
 	if (glfwGetKey(context, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(context, true);
 
+	// keyboard input
 	if (glfwGetKey(context, GLFW_KEY_W) == GLFW_PRESS)
 		g_CameraPtr->processKeyboardInput(CameraMovement::FORWARD, deltaTime);
 	if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS)
@@ -152,6 +154,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	yOffset *= m_MouseSensitivity;
 
 	g_CameraPtr->processMouseMovement(xOffset, yOffset);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	world->mouseEvent(button, action);
 }
 
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

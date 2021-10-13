@@ -3,23 +3,39 @@
 
 #include "../blocks/chunk.h"
 
-#define WORLD_WIDTH 10
-#define WORLD_HEIGHT 1
-#define WORLD_DEPTH 10
+#define WORLD_WIDTH		3
+#define WORLD_HEIGHT	1
+#define WORLD_DEPTH		3
 #define WORLD_VOLUME (WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH)
+
+class Player;
 
 class World
 {
 private:
+	bool blockRemove = false, blockPlace = false;
+	Chunk* chunkUpdateList, * chunkUpdateListStart;
+	int chunkUpdateListCount = 0;
+
+public:
+	Player* player;
+
 public:
 	Chunk**** chunks;
 	World();
+	World(Player* player);
 	~World();
 
+	void initialize();
 	void update();
+	void mouseEvent(int button, int action);
+
+private:
+	void updateWorldFirstPass();
 };
 
-void updateChunkFacesToRender(World* world);
-void updateChunkOnModify(World* world, Chunk* chunk);
+const glm::vec3 pos_to_world_chunk_coord(float x, float y, float z);
+const glm::vec3 pos_to_world_chunk_coord(const glm::vec3& pos);
+void pos_to_world_chunk(World* world, const glm::vec3& pos, Chunk* c);
 
 #endif // !WORLD_H

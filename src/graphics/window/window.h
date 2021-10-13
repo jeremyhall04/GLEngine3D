@@ -3,14 +3,17 @@
 
 #include "../../GLcommon.h"
 #include "../../utils/camera.h"
+#include "../../world/world.h"
 
 const int SCR_WIDTH = 960;
 const int SCR_HEIGHT = 540;
 
-extern PerspectiveCamera* g_CameraPtr;
-	
+extern PerspectiveCamera* g_CameraPtr; // external global
+extern World* world;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 class Window

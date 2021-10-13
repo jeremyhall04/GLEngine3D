@@ -8,7 +8,7 @@ void Plane::setNormal()
 	normal = glm::vec3(a, b, c);
 }
 
-const glm::vec3& Plane::getNormal(bool isNormalized)
+const glm::vec3 Plane::getNormal(bool isNormalized)
 {
 	float mag = 1.0f;
 	if (isNormalized)

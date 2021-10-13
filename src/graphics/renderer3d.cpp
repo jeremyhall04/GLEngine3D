@@ -71,9 +71,9 @@ void Renderer3D::generateTextures()
 
 	m_Textures[0] = new Texture("res/images/default.png");
 	m_Textures[1] = new Texture("res/images/dirt.png");
-	m_Textures[2] = new Texture("res/images/grass.png");
-	m_Textures[4] = new Texture("res/images/grass_side.png");
-	m_Textures[3] = new Texture("res/images/stone.png");
+	m_Textures[2] = new Texture("res/images/grass_side.png");
+	m_Textures[3] = new Texture("res/images/grass.png");
+	m_Textures[4] = new Texture("res/images/stone.png");
 
 	for (GLuint i = 0; i < MAX_TEXTURES; i++)
 	{
@@ -150,7 +150,10 @@ GLuint* Renderer3D::allocateBlockIndices()
 	if (indices != nullptr)
 		return indices;
 	else
+	{
 		std::cout << "\nERROR::BLOCK::INITIALIZATION::Indices is nullptr";
+		return 0;
+	}
 }
 
 GLuint* Renderer3D::allocate108BlockIndices()
@@ -173,7 +176,7 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	const glm::vec3 position = renderable->getPosition();
 	const glm::vec3 size = renderable->getSize();
 	const glm::vec4 color = renderable->getColor();
-	const GLuint blockTexID = renderable->getTIDfromBlockType();
+	const GLuint blockTexID = (GLuint)renderable->getType();
 
 	float width = size.x;
 	float height = size.y;
@@ -197,7 +200,7 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	//}
 	//m_IndexCount += 36;
 
-	float textureIndex = 0.0f;
+	//float textureIndex = 0.0f;
 
 	//for (int i = 0; i < m_TextureSlotIndex; i++)
 	//{
@@ -215,23 +218,52 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	//	m_TextureSlotIndex++;
 	//}
 
-	int faceCount = 0;
-	for (int i = 0; i < 36; i++)
+	if (renderable->getType() != BlockType::Grass)
 	{
-		if ((i == 6) || (i == 12) || (i == 18) || (i == 24) || (i == 30) || (i == 36))
-			faceCount++;
-		if (renderable->renderFace[faceCount] == false)
-			continue;
-		const float* vertex = &BLOCK_VERTICES[i * 3];
-		const float* normal = &BLOCK_NORMALS[i * 3];
-		const float* uv = &BLOCK_UV[i * 2];
-		m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
-		m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
-		m_VertexBuffer->uv = glm::vec3(uv[0], uv[1], blockTexID);
-		m_VertexBuffer->tid = blockTexID;
-		m_VertexBuffer->color = c;
-		m_VertexBuffer++;
-		m_IndexCount++;
+		int faceCount = 0;
+		for (int i = 0; i < 36; i++)
+		{
+			if ((i == 6) || (i == 12) || (i == 18) || (i == 24) || (i == 30) || (i == 36))
+				faceCount++;
+			if (renderable->renderFace[faceCount] == false)
+				continue;
+			const float* vertex = &BLOCK_VERTICES[i * 3];
+			const float* normal = &BLOCK_NORMALS[i * 3];
+			const float* uv = &BLOCK_UV[i * 2];
+			m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
+			m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
+			m_VertexBuffer->uv = glm::vec3(uv[0], uv[1], blockTexID);
+			m_VertexBuffer->tid = (float)blockTexID;
+			m_VertexBuffer->color = c;
+			m_VertexBuffer++;
+			m_IndexCount++;
+		}
+	}
+	else
+	{
+		int faceCount = 0;
+		for (int i = 0; i < 36; i++)
+		{
+			if ((i == 6) || (i == 12) || (i == 18) || (i == 24) || (i == 30) || (i == 36))
+				faceCount++;
+			if (renderable->renderFace[faceCount] == false)
+				continue;
+			const float* vertex = &BLOCK_VERTICES[i * 3];
+			const float* normal = &BLOCK_NORMALS[i * 3];
+			const float* uv = &BLOCK_UV[i * 2];
+			m_VertexBuffer->vertex = glm::vec3(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth);
+			m_VertexBuffer->normal = glm::vec3(normal[0], normal[1], normal[2]);
+			m_VertexBuffer->uv = glm::vec3(uv[0], uv[1], blockTexID);
+			if (faceCount == 4)
+				m_VertexBuffer->tid = 3; // top grass
+			else if (faceCount == 5)
+				m_VertexBuffer->tid = 1; // bottom dirt
+			else
+				m_VertexBuffer->tid = (float)blockTexID;
+			m_VertexBuffer->color = c;
+			m_VertexBuffer++;
+			m_IndexCount++;
+		}
 	}
 
 	//std::vector<int>::iterator it = std::find(m_TextureIndices.begin(), m_TextureIndices.end(), renderable->getTID());
@@ -253,8 +285,11 @@ void Renderer3D::submitChunk(Chunk* chunk)
 			for (int k = 0; k < CHUNK_SIZE; k++)
 			{
 				//occlusionCull(chunk, glm::vec3(i, j, k));
-				if (chunk->getBlockFromIndex(i, j, k)->isActive)
-					submit(chunk->getBlockFromIndex(i, j, k));
+				/*if (chunk->getBlockFromIndex(i, j, k)->isActive)
+					submit(chunk->getBlockFromIndex(i, j, k));*/
+				Block* b = chunk->data[to_data_index(i, j, k)];
+				if (b->isActive)
+					submit(b);
 			}
 }
 
