@@ -1,33 +1,47 @@
 #include "renderer3d.h"
+#include <iostream>
 #include "../blocks/chunk.h"
 #include "../world/world.h"
-#include <iostream>
+#include "../utils/camera.h"
+#include "../utils/crtdebug.h"
 
 Renderer3D::Renderer3D()
 {
-	shader = new Shader("res/shaders/texture.vert", "res/shaders/texture.frag");
-	shader->enable();
-	//shader->setUniform3f("lightPos", glm::vec3(0.0f, 0.0f, 2.0f)); // for lighting
-	//shader->setUniform3f("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	init();
-	generateTextures();
+	initialize();
 }
 
 Renderer3D::~Renderer3D()
 {
 	for (int i = 0; i < MAX_TEXTURES; i++)
+	{
 		delete m_Textures[i];
+		m_TextureIndices[i] = NULL;
+	}
+
 	delete[] m_TextureIndices;
+	m_TextureIndices = NULL;
 
 	//if (m_IBO != nullptr)
 	//	delete m_IBO;
 
 	delete shader;
+	shader = NULL;
 
 	glDeleteBuffers(1, &m_VBO);
 }
 
-void Renderer3D::init()
+void Renderer3D::initialize()
+{
+	shader = new Shader("res/shaders/texture.vert", "res/shaders/texture.frag");
+	shader->enable();
+	//shader->setUniform3f("lightPos", glm::vec3(0.0f, 0.0f, 2.0f)); // for lighting
+	//shader->setUniform3f("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	initBuffers();
+	generateTextures();
+}
+
+void Renderer3D::initBuffers()
 {
 	glGenVertexArrays(1, &m_VAO);
 	glGenBuffers(1, &m_VBO);
@@ -41,11 +55,11 @@ void Renderer3D::init()
 	glEnableVertexAttribArray(SHADER_UV_INDEX);
 	glEnableVertexAttribArray(SHADER_TID_INDEX);
 	glEnableVertexAttribArray(SHADER_COLOR_INDEX);
-	glVertexAttribPointer(SHADER_VERTEX_INDEX,	3, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)0);
-	glVertexAttribPointer(SHADER_NORMAL_INDEX,	3, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::normal)));
-	glVertexAttribPointer(SHADER_UV_INDEX,		2, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::uv)));
-	glVertexAttribPointer(SHADER_TID_INDEX,		1, GL_FLOAT,		GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::tid)));
-	glVertexAttribPointer(SHADER_COLOR_INDEX,	4, GL_UNSIGNED_BYTE, GL_TRUE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::color)));
+	glVertexAttribPointer(SHADER_VERTEX_INDEX, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (const GLvoid*)0);
+	glVertexAttribPointer(SHADER_NORMAL_INDEX, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::normal)));
+	glVertexAttribPointer(SHADER_UV_INDEX, 2, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::uv)));
+	glVertexAttribPointer(SHADER_TID_INDEX, 1, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::tid)));
+	glVertexAttribPointer(SHADER_COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, VERTEX_SIZE, (const GLvoid*)(offsetof(VertexData3D, VertexData3D::color)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	// unbind array buffer
 
@@ -67,7 +81,7 @@ void Renderer3D::init()
 
 void Renderer3D::generateTextures()
 {
-	m_TextureIndices = new int[MAX_INDICES];
+	m_TextureIndices = new int[MAX_TEXTURES];
 
 	m_Textures[0] = new Texture("res/images/default.png");
 	m_Textures[1] = new Texture("res/images/dirt.png");
@@ -189,35 +203,6 @@ void Renderer3D::submit(const Renderable3D* renderable)
 
 	GLuint c = a << 24 | b << 16 | g << 8 | r;
 
-	//for (GLuint i = 0; i < 8; i++)
-	//{
-	//	const float* vertex = &BLOCK_INDEXED_VERTICES[i * 3];
-	//	const float* uv = &BLOCK_UV[i * 2];
-	//	m_VertexBuffer->vertex = glm::vec4(position.x + vertex[0] * width, position.y + vertex[1] * height, position.z + vertex[2] * depth, position.w);
-	//	m_VertexBuffer->uv = glm::vec2(uv[0], uv[1]);
-	//	m_VertexBuffer->color = c;
-	//	m_VertexBuffer++;
-	//}
-	//m_IndexCount += 36;
-
-	//float textureIndex = 0.0f;
-
-	//for (int i = 0; i < m_TextureSlotIndex; i++)
-	//{
-	//	if (m_TextureSlots[i] == blockTexID)
-	//	{
-	//		textureIndex = (float)i;
-	//		break;
-	//	}
-	//}
-
-	//if (textureIndex == 0.0f)
-	//{
-	//	textureIndex = (float)m_TextureSlotIndex; 
-	//	m_TextureSlots[m_TextureSlotIndex] = blockTexID;
-	//	m_TextureSlotIndex++;
-	//}
-
 	if (renderable->getType() != BlockType::Grass)
 	{
 		int faceCount = 0;
@@ -276,17 +261,24 @@ void Renderer3D::submit(const Renderable3D* renderable)
 	//m_IndexCount += 36;
 }
 
+void Renderer3D::submitScene(World* world)
+{
+	for (int i = 0; i < WORLD_WIDTH; i++)
+		for (int j = 0; j < WORLD_HEIGHT; j++)
+			for (int k = 0; k < WORLD_DEPTH; k++)
+			{
+				Chunk* c = world->chunks[i][j][k];
+				if (world->chunks[i][j][k]->isEmpty == false)
+					submitChunk(world->chunks[i][j][k]);
+			}
+}
+
 void Renderer3D::submitChunk(Chunk* chunk)
 {
-	//frustumCull(chunk);
-
 	for (int i = 0; i < CHUNK_SIZE; i++)
 		for (int j = 0; j < CHUNK_SIZE; j++)
 			for (int k = 0; k < CHUNK_SIZE; k++)
 			{
-				//occlusionCull(chunk, glm::vec3(i, j, k));
-				/*if (chunk->getBlockFromIndex(i, j, k)->isActive)
-					submit(chunk->getBlockFromIndex(i, j, k));*/
 				Block* b = chunk->data[to_data_index(i, j, k)];
 				if (b->isActive)
 					submit(b);
@@ -300,17 +292,6 @@ void Renderer3D::submitChunk(Chunk* chunk)
 //			for (int k = 0; k < CHUNK_SIZE; k++)
 //				submit(chunks->data[i + j * CHUNK_SIZE + k * CHUNK_SIZE_SQUARED]);
 //}
-
-void Renderer3D::submitScene(World* world)
-{
-	for (int i = 0; i < WORLD_WIDTH; i++)
-		for (int j = 0; j < WORLD_HEIGHT; j++)
-			for (int k = 0; k < WORLD_DEPTH; k++)
-			{
-				if (world->chunks[i][j][k]->isEmpty == false)
-					submitChunk(world->chunks[i][j][k]);
-			}
-}
 
 //void Renderer3D::submit(const Block* block)
 //{

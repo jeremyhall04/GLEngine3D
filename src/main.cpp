@@ -1,4 +1,3 @@
-#include "Header.h"
 #include <iostream>
 
 #include "graphics/window/window.h"
@@ -8,17 +7,12 @@
 #include "graphics/renderable3D.h"
 #include "graphics/renderer3d.h"
 #include "graphics/texture/texture.h"
-#include "graphics/frustum/frustum.h"
 #include "world/world.h"
 #include "entity/player.h"
 
 #include "utils/camera.h"
 #include "utils/timer.h"
-
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
+#include "utils/crtdebug.h"
 
 float orth_w = 16.0f * 2.0f, orth_h = 9.0f * 2.0f;
 
@@ -29,39 +23,17 @@ UINT frames = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-#define RENDER3D 0
-
 int main()
 {
 	Window window("3D Engine", SCR_WIDTH, SCR_HEIGHT);
 
-	/*glm::vec3 camerapos = glm::vec3(0.0f, 0.0f, -10.0f);
-	glm::vec3 cameratarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameradirection = glm::normalize(camerapos - cameratarget);
-	//glm::vec3 cameradirection = glm::normalize(cameratarget - camerapos);
-	glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraright = glm::normalize(glm::cross(worldup, cameradirection));
-	glm::vec3 cameraup = glm::cross(cameradirection, cameraright);
-
-	glm::mat4 ortho_projmatrix = glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -100.0f, 100.0f);
-	glm::mat4 perspective_projmatrix = glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.01f, 100.0f);
-
-	glm::mat4 viewmatrix = glm::lookAt(camerapos, cameratarget, cameraup);
-	glm::mat4 viewmatrix = glm::lookAt(camerapos, camerapos + cameradirection, cameraup);
-
-	shader->setuniformmat4("pr_matrix", ortho_projmatrix);
-	shader->setuniformmat4("pr_matrix", perspective_projmatrix);
-	shader->setuniformmat4("vw_matrix", viewmatrix);*/
-
-	g_CameraPtr = new PerspectiveCamera(0.0f, 2.0f + 16.0f, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
+	g_CameraPtr = new PerspectiveCamera(0.0f, 2.0f + 32.0f, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f), glm::radians(45.0f));	// external in window.h
 
 	Player player(g_CameraPtr);
-	world = new World(&player);
+	g_World = new World(&player);
 	Renderer3D renderer;
 	Shader* shader = renderer.shader;
 	shader->enable();
-
-	Frustum frustum(g_CameraPtr);
 
 	/*Shader* shader2D = new Shader("res/shaders/quad.vert", "res/shaders/quad.frag");
 
@@ -110,7 +82,7 @@ int main()
 		window.processInput(deltaTime);
 		
 		player.update(g_CameraPtr);
-		world->update();
+		g_World->update();
 
 		shader->enable();
 		//shader->setUniform3f("viewPos", g_CameraPtr->getPosition());	// for specular lighting
@@ -121,7 +93,7 @@ int main()
 		// Renderer
 		renderer.begin();
 
-		renderer.submitScene(world);
+		renderer.submitScene(g_World);
 
 		renderer.end();
 		renderer.flush();
@@ -131,15 +103,18 @@ int main()
 		frames++;
 		if (time.elapsed() - timer > 1.0f)
 		{
-			//printf("\n<%f, %f, %f>", g_CameraPtr->getPosition().x, g_CameraPtr->getPosition().y, g_CameraPtr->getPosition().z);
 			timer += 1.0f;
 			printf("\n%d fps", frames);
 			frames = 0;
 		}
 	}
 
-	_CrtDumpMemoryLeaks();
 	delete g_CameraPtr;
+	delete g_World;
+
+#if defined _DELETECOUNT
+	printf("\nnewCount = %d", newCount);
+#endif
 
 	return 0;
 }

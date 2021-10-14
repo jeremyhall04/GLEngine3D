@@ -5,6 +5,7 @@
 #include <vector>
 #include "../GLcommon.h"
 #include "../GLcommon_math.h"
+#include "frustum/frustum.h"
 #include "renderable3D.h"
 #include "texture/texture.h"
 #include "shader.h"
@@ -25,6 +26,7 @@
 class Block;
 class Chunk;
 class World;
+class PerspectiveCamera;
 
 class Renderer3D
 {
@@ -48,19 +50,18 @@ public:
 	~Renderer3D();
 
 private:
-	void init();
+	void initialize();
+	void initBuffers();
 	GLuint* allocateBlockIndices();
 	GLuint* allocate108BlockIndices();
-	bool compareBlockFaces(Block* b);
 
 public:
 	void generateTextures();
 	VertexData3D* getVertexBuffer() { return m_VertexBuffer; };
 	void begin();
 	void submit(const Renderable3D* renderable);
-	void submitChunk(Chunk* chunk);
-	void submitChunkData(Chunk* data);
 	void submitScene(World* world);
+	void submitChunk(Chunk* chunk);
 	void end();
 	void flush();
 };

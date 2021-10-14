@@ -2,6 +2,8 @@
 #include "../graphics/window/window.h"
 #include "../world/world.h"
 
+#include "../utils/crtdebug.h"
+
 Chunk::Chunk()
 {
 }
@@ -18,12 +20,25 @@ Chunk::Chunk(int i, int j, int k)
 
 Chunk::~Chunk()
 {
-	for (int i = 0; i < CHUNK_SIZE; i++)
-		for (int j = 0; j < CHUNK_SIZE; j++)
-			for (int k = 0; k < CHUNK_SIZE; k++)
-				delete getBlockFromIndex(i, j, k);
 	if (data != NULL)
-		delete[] data;
+	{
+		for (int i = 0; i < CHUNK_SIZE; i++)
+			for (int j = 0; j < CHUNK_SIZE; j++)
+				for (int k = 0; k < CHUNK_SIZE; k++)
+				{
+					delete data[to_data_index(i, j, k)];	// deleting BLOCKS in chunk
+					data[to_data_index(i, j, k)] = NULL;	// setting BLOCK to null
+				}
+		delete[] data;	// deleting block array
+		data = NULL;
+
+		cXN = NULL;
+		cXP = NULL;
+		cYN = NULL;
+		cYP = NULL;
+		cZN = NULL;
+		cZP = NULL;
+	}
 }
 
 void Chunk::generateChunkData()
@@ -51,7 +66,6 @@ void Chunk::generateChunkData()
 	}
 	if (airCount == CHUNK_SIZE_CUBED)	// maybe put this in the update chunk block face function so you check every time
 		isEmpty = true;
-	updateChunkBlockFaces(this);
 }
 
 // Removes the face of a chunk by unrendering 

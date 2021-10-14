@@ -9,7 +9,7 @@ const int SCR_WIDTH = 960;
 const int SCR_HEIGHT = 540;
 
 extern PerspectiveCamera* g_CameraPtr; // external global
-extern World* world;
+extern World* g_World;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);

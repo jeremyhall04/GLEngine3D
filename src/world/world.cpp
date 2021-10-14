@@ -1,6 +1,8 @@
 #include "world.h"
 #include "../entity/player.h"
 
+#include "../utils/crtdebug.h"
+
 World::World()
 {
 }
@@ -8,6 +10,11 @@ World::World()
 World::World(Player* player)
 	: player(player)
 {
+	int nChunks = WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH;
+	int nBlocks = nChunks * CHUNK_SIZE_CUBED;
+	printf("\nCHUNKS RENDERED = %d", nChunks);
+	printf("\nBLOCKS RENDERED = %d", nBlocks);
+
 	initialize();
 	updateWorldFirstPass();
 }
@@ -18,6 +25,11 @@ World::~World()
 	{
 		for (int j = 0; j < WORLD_HEIGHT; j++)
 		{
+			for (int k = 0; k < WORLD_DEPTH; k++)
+			{
+				Chunk* c = chunks[i][j][k];
+				delete chunks[i][j][k];		// HEAP CORRUPTION OCCURING HERE (was caused by *chunkUpdateList manipulation)
+			}
 			delete[] chunks[i][j];
 		}
 		delete[] chunks[i];
@@ -47,16 +59,29 @@ void World::initialize()
 			{
 				if (i > 0)
 					chunks[i][j][k]->cXN = chunks[i - 1][j][k];
+				else
+					chunks[i][j][k]->cXN = NULL;
 				if (i < WORLD_WIDTH - 1)
 					chunks[i][j][k]->cXP = chunks[i + 1][j][k];
+				else
+					chunks[i][j][k]->cXP = NULL;
 				if (j > 0)
 					chunks[i][j][k]->cYN = chunks[i][j - 1][k];
+				else
+					chunks[i][j][k]->cYN = NULL;
 				if (j < WORLD_HEIGHT - 1)
 					chunks[i][j][k]->cYP = chunks[i][j + 1][k];
+				else
+					chunks[i][j][k]->cYP = NULL;
 				if (k > 0)
 					chunks[i][j][k]->cZN = chunks[i][j][k - 1];
+				else
+					chunks[i][j][k]->cZN = NULL;
 				if (k < WORLD_WIDTH - 1)
 					chunks[i][j][k]->cZP = chunks[i][j][k + 1];
+				else
+					chunks[i][j][k]->cZP = NULL;
+				updateChunkBlockFaces(chunks[i][j][k]);
 			}
 }
 
@@ -74,12 +99,11 @@ void World::update()
 			float ry = player->ray.endPoint.y;
 			float rz = player->ray.endPoint.z;
 			int cX = (int)glm::floor(rx / CHUNK_SIZE);
-			int cY = (int)glm::floor(ry / (WORLD_HEIGHT * CHUNK_SIZE));
+			int cY = (int)glm::floor(ry / CHUNK_SIZE);
 			int cZ = (int)glm::floor(rz / CHUNK_SIZE);
 
 			// therefore, looking at block in chunk c
-			if (cX < 0 || cX >= (WORLD_WIDTH) || cY != 0 || cZ < 0 || cZ >= (WORLD_WIDTH))
-				//printf("\nchunk[%d][%d][%d] out of range", cX, cY, cZ);
+			if (cX < 0 || cX >= (WORLD_WIDTH) || cY < 0 || cY >= (WORLD_HEIGHT) || cZ < 0 || cZ >= (WORLD_WIDTH))
 				blockRemove = false;
 			else
 			{
@@ -88,104 +112,74 @@ void World::update()
 				if (c != NULL)
 				{
 					// add chunk to update list
-					chunkUpdateList = c;
-					if (chunkUpdateListCount == 0)
-						chunkUpdateListStart = chunkUpdateList;	// remember starting memory address
-					chunkUpdateList++;		// move pointer to next chunk in list
-					chunkUpdateListCount++;	// increment count 
+					chunkUpdateList.push_back(c);
 
 					// remove block within chunk
 					int bX = (int)glm::floor(rx - (float)c->chunkX);
 					int bY = (int)glm::floor(ry - (float)c->chunkY);
 					int bZ = (int)glm::floor(rz - (float)c->chunkZ);
-					if (bY <= 15)
-					{
-						int access = to_data_index(bX, bY, bZ);
-						Block* b = c->data[access];
-						if (b->isActive == false)
-							continue;
-						else
-						{
-							b->isActive = false;
-							blockRemove = false;
-							c->isModified = true;
-							//printf("\nRemoved C[%d][%d][%d].B[%d][%d][%d]", cX, cY, cZ, bX, bY, bZ);
-							// if block is on edge of chunk, update neighbouring chunk
-							if (bX <= 0 && c->cXN != NULL)
-							{
-								c->cXN->isModified = true;
-								*chunkUpdateList = *(c->cXN);
-								chunkUpdateList++;
-								chunkUpdateListCount++;
-								break;
-							}
-							else if (bX >= 15 && c->cXP != NULL)
-							{
-								//printf("\n\tis border, to Render C[%d][%d][%d].B[%d][%d][%d]", cX + 1, cY, cZ, 0, bY, bZ);
-								c->cXP->isModified = true;
-								*chunkUpdateList = *(c->cXP);
-								chunkUpdateList++;
-								chunkUpdateListCount++;
-								//addBlockToChunkRender(c->cXP, glm::vec3(bX, bY, bZ), chunkUpdateList, chunkUpdateListCount);
-								break;
-							}
-							if (bZ <= 0 && c->cZN != NULL)
-							{
-								c->cZN->isModified = true;
-								*chunkUpdateList = *(c->cZN);
-								chunkUpdateList++;
-								chunkUpdateListCount++;
-								break;
-							}
-							else if (bZ >= 15 && c->cZP != NULL)
-							{
-								c->cZP->isModified = true;
-								*chunkUpdateList = *(c->cZP);
-								chunkUpdateList++;
-								chunkUpdateListCount++;
-								break;
-							}
 
+					Block* b = c->data[to_data_index(bX, bY, bZ)];
+					if (b->isActive == false)
+						continue;
+					else
+					{
+						b->isActive = false;
+						blockRemove = false;
+						c->isModified = true;
+						printf("\nRemoved C[%d][%d][%d].B[%d][%d][%d]", cX, cY, cZ, bX, bY, bZ);
+
+						// if block is on edge of chunk, update neighbouring chunk
+						if (bX <= 0 && c->cXN != NULL)
+						{
+							c->cXN->isModified = true;
+							chunkUpdateList.push_back(c->cXN);
 							break;
 						}
+						else if (bX >= 15 && c->cXP != NULL)
+						{
+							c->cXP->isModified = true;
+							chunkUpdateList.push_back(c->cXP);
+							break;
+						}
+						if (bY <= 0 && c->cYN != NULL)
+						{
+							c->cYN->isModified = true;
+							chunkUpdateList.push_back(c->cYN);
+							break;
+						}
+						else if (bY >= 15 && c->cYP != NULL)
+						{
+							c->cYP->isModified = true;
+							chunkUpdateList.push_back(c->cYP);
+							break;
+						}
+						if (bZ <= 0 && c->cZN != NULL)
+						{
+							c->cZN->isModified = true;
+							chunkUpdateList.push_back(c->cZN);
+							break;
+						}
+						else if (bZ >= 15 && c->cZP != NULL)
+						{
+							c->cZP->isModified = true;
+							chunkUpdateList.push_back(c->cZP);
+							break;
+						}
+
+						break;
 					}
-					else
-						printf("\nchunk[%d][%d][%d].block[%d][%d][%d] is out of bounds", cX, cY, cZ, bX, bY, bZ);
 				}
-				else
-					printf("\nchunk[%d][%d][%d] was NULL", cX, cY, cZ);
 			}
 		}
 	}
 	
-	if (!chunkUpdateListCount == 0)
-	{
-		chunkUpdateList = chunkUpdateListStart;
-		for (int i = 0; i < chunkUpdateListCount; i++)
-		{
-			Chunk* c = chunkUpdateList;
-			if (c->isModified)
-				updateChunkFaces(c);
-			chunkUpdateList++;
-		}
-		chunkUpdateListCount = 0;
-	}
+	for (Chunk* c: chunkUpdateList)
+		if (c->isModified)
+			updateChunkFaces(c);
 
-	//for (int i = 0; i < WORLD_WIDTH; i++)
-	//	for (int j = 0; j < WORLD_HEIGHT; j++)
-	//		for (int k = 0; k < WORLD_DEPTH; k++)
-	//		{
-	//			// check if player is looking at block (& in range)
-	//			if (!chunks[i][j][k]->isEmpty && chunks[i][j][k]->isModified)
-	//			{
-	//				updateChunkBlockFaces(chunks[i][j][k]);
-	//				updateChunkFaces(chunks[i][j][k]);
-	//				chunks[i][j][k]->isModified = false;
-	//			}
-	//		}
+	chunkUpdateList.clear();
 }
-
-
 
 void World::mouseEvent(int button, int action)
 {
@@ -205,15 +199,11 @@ void World::updateWorldFirstPass()
 		for (int j = 0; j < WORLD_HEIGHT; j++)
 			for (int k = 0; k < WORLD_DEPTH; k++)
 			{
-				Chunk* c = chunks[i][j][k];
 				// check if player is looking at block (& in range)
-				if (!c->isEmpty)
+				if (!chunks[i][j][k]->isEmpty)
 				{
-					updateChunkBlockFaces(c);
-					updateChunkFaces(c);
+					updateChunkFaces(chunks[i][j][k]);
 				}
-				else
-					c = NULL;
 			}
 	
 }

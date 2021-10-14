@@ -2,9 +2,12 @@
 #define WORLD_H
 
 #include "../blocks/chunk.h"
+#include <vector>
 
 #define WORLD_WIDTH		3
-#define WORLD_HEIGHT	1
+#define WORLD_HEIGHT	2
+#define WORLD_HEIGHT_P (int)glm::floor(WORLD_HEIGHT / 2.0)
+#define WORLD_HEIGHT_N (int)(-1 * glm::ceil(WORLD_HEIGHT / 2.0))
 #define WORLD_DEPTH		3
 #define WORLD_VOLUME (WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH)
 
@@ -14,8 +17,7 @@ class World
 {
 private:
 	bool blockRemove = false, blockPlace = false;
-	Chunk* chunkUpdateList, * chunkUpdateListStart;
-	int chunkUpdateListCount = 0;
+	std::vector<Chunk*> chunkUpdateList;
 
 public:
 	Player* player;

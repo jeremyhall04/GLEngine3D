@@ -179,6 +179,7 @@
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="src\blocks\chunk.h" />
     <ClInclude Include="src\blocks\chunkmesh.h" />
+    <ClInclude Include="src\utils\crtdebug.h" />
     <ClInclude Include="src\entity\player.h" />
     <ClInclude Include="src\entity\ray.h" />
     <ClInclude Include="src\graphics\buffers\framebuffer.h" />

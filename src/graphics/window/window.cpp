@@ -1,8 +1,10 @@
 #include "window.h"
 #include <iostream>
 
+#include "../../utils/crtdebug.h"
+
 extern PerspectiveCamera* g_CameraPtr = 0;
-extern World* world = 0;
+extern World* g_World = 0;
 bool isWireframe = false;
 
 Window::Window()
@@ -65,6 +67,9 @@ Window::~Window()
 {
 	glfwTerminate();
 	context = nullptr;
+#if defined _DEBUG
+	_CrtDumpMemoryLeaks();
+#endif
 }
 
 bool Window::isClose()
@@ -158,7 +163,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	world->mouseEvent(button, action);
+	g_World->mouseEvent(button, action);
 }
 
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

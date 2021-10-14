@@ -3,24 +3,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 
-void Plane::setNormal()
-{
-	normal = glm::vec3(a, b, c);
-}
-
-const glm::vec3 Plane::getNormal(bool isNormalized)
-{
-	float mag = 1.0f;
-	if (isNormalized)
-		mag = sqrt(a * a + b * b + c * c);
-	return normal / mag;
-}
-
-float Plane::getDistanceToPoint(const glm::vec4& v)
-{
-	return a * v.x + b * v.y + c * v.z + d;
-}
-
 Frustum::Frustum()
 {
 }
@@ -220,4 +202,23 @@ bool Frustum::containsBlock(Block* block)
 	
 	return isRendered;
 	//else intersect
+}
+
+
+void Plane::setNormal()
+{
+	normal = glm::vec3(a, b, c);
+}
+
+const glm::vec3 Plane::getNormal(bool isNormalized)
+{
+	float mag = 1.0f;
+	if (isNormalized)
+		mag = sqrt(a * a + b * b + c * c);
+	return normal / mag;
+}
+
+float Plane::getDistanceToPoint(const glm::vec4& v)
+{
+	return a * v.x + b * v.y + c * v.z + d;
 }
