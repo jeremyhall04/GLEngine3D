@@ -8,6 +8,7 @@
 #include "frustum/frustum.h"
 #include "renderable3D.h"
 #include "texture/texture.h"
+#include "skybox.h"
 #include "shader.h"
 
 #define MAX_BLOCKS		50000 
@@ -39,11 +40,12 @@ private:
 
 	Texture* m_Textures[MAX_TEXTURES];
 	int* m_TextureIndices;
-	//GLuint* m_TextureSlots;
-	//GLuint m_TextureSlotIndex = 0;
 
+	Skybox m_Skybox;
+	Texture* m_SkyboxTexture;
 public:
 	Shader* shader;
+	Shader* skyboxShader;
 
 public:
 	Renderer3D();
@@ -64,6 +66,7 @@ public:
 	void submitChunk(Chunk* chunk);
 	void end();
 	void flush();
+	void renderSkybox();
 };
 
 void generateTextures(Shader* shader);

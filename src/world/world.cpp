@@ -91,7 +91,7 @@ void World::update()
 	if (blockRemove)
 	{
 		// cast ray and remove block
-		for (float step = 0.0f; step < player->ray.maxRayLength; step += 0.5f)
+		for (float step = 0.0f; step < player->ray.maxRayLength; step += 1.0f)
 		{
 			player->ray.update(player->getPos(), player->getDir(), step);
 
@@ -104,10 +104,10 @@ void World::update()
 
 			// therefore, looking at block in chunk c
 			if (cX < 0 || cX >= (WORLD_WIDTH) || cY < 0 || cY >= (WORLD_HEIGHT) || cZ < 0 || cZ >= (WORLD_WIDTH))
-				blockRemove = false;
+				continue;
 			else
 			{
-				// update chunk
+				// get chunk to modify
 				Chunk* c = chunks[cX][cY][cZ];
 				if (c != NULL)
 				{
@@ -169,6 +169,58 @@ void World::update()
 
 						break;
 					}
+				}
+			}
+		}
+	}
+	else if (blockPlace)
+	{
+		for (float step = 0.0f; step < player->ray.maxRayLength; step += 1.0f)
+		{
+			glm::vec3 rayDir = player->getDir();
+			player->ray.update(player->getPos(), rayDir, step);
+
+			float rx = player->ray.endPoint.x;
+			float ry = player->ray.endPoint.y;
+			float rz = player->ray.endPoint.z;
+			int cX = (int)glm::floor(rx / CHUNK_SIZE);
+			int cY = (int)glm::floor(ry / CHUNK_SIZE);
+			int cZ = (int)glm::floor(rz / CHUNK_SIZE);
+
+			// therefore, looking at block in chunk c
+			if (cX < 0 || cX >= (WORLD_WIDTH) || cY < 0 || cY >= (WORLD_HEIGHT) || cZ < 0 || cZ >= (WORLD_WIDTH))
+				continue;
+			else
+			{
+				// get chunk to modify
+				Chunk* c = chunks[cX][cY][cZ];
+				if (c != NULL)
+				{
+					// add chunk to update list
+					chunkUpdateList.push_back(c);
+
+					// find block that ray has hit
+					int bX = (int)glm::floor(rx - (float)c->chunkX);
+					int bY = (int)glm::floor(ry - (float)c->chunkY);
+					int bZ = (int)glm::floor(rz - (float)c->chunkZ);
+
+					int nextBX = (int)glm::floor((float)rx + 1.0f * rayDir.x - (float)c->chunkX);
+					int nextBY = (int)glm::floor((float)ry + 1.0f * rayDir.y - (float)c->chunkY);
+					int nextBZ = (int)glm::floor((float)rz + 1.0f * rayDir.z - (float)c->chunkZ);
+
+					Block* b = c->data[to_data_index(bX, bY, bZ)];
+					Block* nextB = c->data[to_data_index(nextBX, nextBY, nextBZ)];
+					if (nextB->isActive == false)
+						continue;
+					else
+					{
+						printf("\nplace block[%d][%d][%d]", bX, bY, bZ);
+						b->isActive = true;
+						c->isModified = true;
+						blockPlace = false;
+						break;
+					}
+
 				}
 			}
 		}

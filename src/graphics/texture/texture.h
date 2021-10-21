@@ -15,10 +15,11 @@ private:
 public:
 	Texture();
 	Texture(const char* path);
+	Texture(const char* fileNameNoExtension, bool isSkybox);
 	~Texture();
 
-
 	void load();
+	void loadSkybox();
 	void bind() const;
 	void bind(GLuint slot) const;
 	void unbind() const;

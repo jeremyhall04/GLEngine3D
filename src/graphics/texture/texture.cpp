@@ -1,5 +1,5 @@
 #include "texture.h"
-
+#include <string>
 #include <iostream>
 #include <fstream>
 
@@ -14,6 +14,12 @@ Texture::Texture(const char* fileName)
 	: m_FileName(fileName)
 {
 	load();
+}
+
+Texture::Texture(const char* fileNameNoExtension, bool isSkybox)
+{
+	m_FileName = fileNameNoExtension;
+	loadSkybox();
 }
 
 Texture::~Texture()
@@ -42,8 +48,41 @@ void Texture::load()
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else
-		printf("\nERROR::TEXTURE::LOAD::m_Data is nullptr");
+		printf("\nERROR::TEXTURE::LOAD::File could not be read: %s", m_FileName);
 	stbi_image_free(data);
+	stbi_set_flip_vertically_on_load(false);
+}
+
+void Texture::loadSkybox()
+{
+	glGenTextures(1, &m_TextureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
+
+	std::string names[6] = {
+		"res/images/skybox/skybox0.png",
+		"res/images/skybox/skybox1.png",
+		"res/images/skybox/skybox2.png",
+		"res/images/skybox/skybox3.png",
+		"res/images/skybox/skybox4.png",
+		"res/images/skybox/skybox5.png",
+	};
+
+	for (int i = 0; i < 6; i++)
+	{
+		unsigned char* data = stbi_load(names[i].c_str(), &m_Width, &m_Height, &m_Channels, 0/*STBI_rgb_alpha*/);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, (const void*)data);
+		}
+		else
+			std::cout << "\nERROR::TEXTURE::LOAD::Skybox could not be read: " << names[i];
+		stbi_image_free(data);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 void Texture::bind() const

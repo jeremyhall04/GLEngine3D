@@ -21,11 +21,17 @@ Renderer3D::~Renderer3D()
 	delete[] m_TextureIndices;
 	m_TextureIndices = NULL;
 
+	delete m_SkyboxTexture;
+	m_SkyboxTexture = NULL;
+
 	//if (m_IBO != nullptr)
 	//	delete m_IBO;
 
 	delete shader;
 	shader = NULL;
+
+	delete skyboxShader;
+	skyboxShader = NULL;
 
 	glDeleteBuffers(1, &m_VBO);
 }
@@ -33,7 +39,7 @@ Renderer3D::~Renderer3D()
 void Renderer3D::initialize()
 {
 	shader = new Shader("res/shaders/texture.vert", "res/shaders/texture.frag");
-	shader->enable();
+	skyboxShader = new Shader("res/shaders/skybox.vert", "res/shaders/skybox.frag");
 	//shader->setUniform3f("lightPos", glm::vec3(0.0f, 0.0f, 2.0f)); // for lighting
 	//shader->setUniform3f("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -96,7 +102,13 @@ void Renderer3D::generateTextures()
 		m_TextureIndices[i] = i;
 	}
 
+	m_SkyboxTexture = new Texture("res/images/skybox", true);
+
+	shader->enable();
 	shader->setUniform1iv("textures", (int)MAX_TEXTURES, m_TextureIndices);
+
+	skyboxShader->enable();
+	skyboxShader->setUniform1i("skybox", 0);
 
 	// Initialize texture array
 	/*//const int nTexLayers = 3;
@@ -357,6 +369,16 @@ void Renderer3D::flush()
 	glBindVertexArray(0);
 
 	m_IndexCount = 0;
+}
+
+void Renderer3D::renderSkybox()
+{
+	glDepthFunc(GL_LEQUAL);
+	glBindVertexArray(m_Skybox.getVAO());
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_SkyboxTexture->getID());
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDepthFunc(GL_LESS);
 }
 
 void generateTextures(Shader* shader)

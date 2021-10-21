@@ -91,12 +91,19 @@ int main()
 		//shader->setUniformMat4("ml_matrix", glm::rotate(glm::mat4(1.0f), glm::radians(time.elapsed() * 20.0f), glm::vec3(1.0f, 1.0f, 0.0f)));
 	
 		// Renderer
+		// CHUNKS
 		renderer.begin();
 
 		renderer.submitScene(g_World);
 
 		renderer.end();
 		renderer.flush();
+
+		// SKYBOX
+		renderer.skyboxShader->enable();
+		renderer.skyboxShader->setUniformMat4("projection", g_CameraPtr->getProjectionMatrix());
+		renderer.skyboxShader->setUniformMat4("view", glm::mat4(glm::mat3(g_CameraPtr->getViewMatrix())));
+		renderer.renderSkybox();
 
 		window.update();
 

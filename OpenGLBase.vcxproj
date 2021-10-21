@@ -164,6 +164,7 @@
     <ClCompile Include="src\graphics\buffers\framebuffer.cpp" />
     <ClCompile Include="src\graphics\frustum\frustum.cpp" />
     <ClCompile Include="src\graphics\renderer3d.cpp" />
+    <ClCompile Include="src\graphics\skybox.cpp" />
     <ClCompile Include="src\graphics\texture\texture.cpp" />
     <ClCompile Include="src\graphics\buffers\buffer.cpp" />
     <ClCompile Include="glad.c" />
@@ -179,6 +180,7 @@
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="src\blocks\chunk.h" />
     <ClInclude Include="src\blocks\chunkmesh.h" />
+    <ClInclude Include="src\graphics\skybox.h" />
     <ClInclude Include="src\utils\crtdebug.h" />
     <ClInclude Include="src\entity\player.h" />
     <ClInclude Include="src\entity\ray.h" />
@@ -210,6 +212,8 @@
     <None Include="res\shaders\lighting.vert" />
     <None Include="res\shaders\quad.frag" />
     <None Include="res\shaders\quad.vert" />
+    <None Include="res\shaders\skybox.frag" />
+    <None Include="res\shaders\skybox.vert" />
     <None Include="res\shaders\texture.frag" />
     <None Include="res\shaders\texture.vert" />
   </ItemGroup>

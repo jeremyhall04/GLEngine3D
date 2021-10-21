@@ -75,6 +75,9 @@
     <ClCompile Include="src\entity\ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h">
@@ -155,6 +158,9 @@
     <ClInclude Include="src\utils\crtdebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.frag" />
@@ -165,6 +171,8 @@
     <None Include="res\shaders\lighting.vert" />
     <None Include="res\shaders\quad.vert" />
     <None Include="res\shaders\quad.frag" />
+    <None Include="res\shaders\skybox.frag" />
+    <None Include="res\shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\images\blocks.png">
